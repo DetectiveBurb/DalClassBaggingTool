@@ -70,7 +70,7 @@ public class Baggui implements ActionListener{
     	}
     	
     	else if (e.getSource().equals(save)) {    	
-    		int returnVal = fc.showOpenDialog(save); 	
+    		int returnVal = fc.showSaveDialog(save); 	
     		if (returnVal == JFileChooser.APPROVE_OPTION)
     		{
     			baglady.setOutput(fc.getSelectedFile().toPath());

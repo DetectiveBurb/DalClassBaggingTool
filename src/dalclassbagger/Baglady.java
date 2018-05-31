@@ -68,6 +68,7 @@ public class Baglady {
 	
 	
 	public void cleanFolder() {
+		copyFolder();
 		try {
 			Files.walk(Paths.get(input.toString()+"\\data"))
 		      .sorted(Comparator.reverseOrder())
@@ -83,11 +84,12 @@ public class Baglady {
 
 	//copys folders to the desired output location
 	public void copyFolder(){
+		Path src = Paths.get(input.toString()+"\\data");
 	     try{
-	    	 Files.walk( input )
+	    	 Files.walk(Paths.get(input.toString()+"\\data"))
 	         .forEach( s ->{
 	        	 try
-	             {   Path d = output.resolve( input.relativize(s) );
+	             {   Path d = input.resolve( src.relativize(s) );
 	                 if( Files.isDirectory( s ) )
 	                 {   if( !Files.exists( d ) )
 	                         Files.createDirectory( d );
@@ -106,8 +108,9 @@ public class Baglady {
 	//zips the bag if requested
 	public void pack() throws IOException {
 	    Path p= null;
-		try {p = Files.createFile(output);}
-		catch (IOException e) {p=output;}
+	    Path out = Paths.get(output.toString()+".zip");
+		try {p = Files.createFile(out);}
+		catch (IOException e) {p=out;}
 	    
 		try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p))) {
 	        Path pp = input;
@@ -143,8 +146,6 @@ public class Baglady {
 			writeBag();
 			if (zip)
 				pack();
-			else
-				copyFolder();
 			cleanFolder();
 		} 
 		catch (NoSuchAlgorithmException e) {e.printStackTrace();} 
