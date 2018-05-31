@@ -5,25 +5,69 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import gov.loc.repository.bagit.creator.BagCreator;
+import gov.loc.repository.bagit.domain.Bag;
+import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
+import gov.loc.repository.bagit.writer.BagWriter;
+
 public class Baglady {
 
-	static Path input;
-	static Path output;
+	Path input;
+	Path output;
+	Bag bag;
+	StandardSupportedAlgorithms alg = StandardSupportedAlgorithms.MD5;
 	
 	public Baglady() {
 	}
 	
-	public Baglady(Path in, Path out)
+	public Baglady(Path in, Path out,StandardSupportedAlgorithms alg)
 	{
 		this.input=in;
 		this.output=out;
+		this.alg=alg;
 	}
 	
-	public static void cleanFolder() {
+	public Path getInput() {
+		return input;
+	}
+
+	public void setInput(Path input) {
+		this.input = input;
+	}
+
+	public  Path getOutput() {
+		return output;
+	}
+
+	public void setOutput(Path output) {
+		this.output = output;
+	}
+
+	public Bag getBag() {
+		return bag;
+	}
+
+	public void setBag(Bag bag) {
+		this.bag = bag;
+	}
+
+	public StandardSupportedAlgorithms getAlg() {
+		return alg;
+	}
+
+	public void setAlg(StandardSupportedAlgorithms alg) {
+		this.alg = alg;
+	}
+
+	
+	
+	public void cleanFolder() {
 		try {
 			Files.walk(Paths.get(input.toString()+"\\data"))
 		      .sorted(Comparator.reverseOrder())
@@ -33,19 +77,17 @@ public class Baglady {
 			Files.delete(Paths.get(input.toString()+"\\bagit.txt"));
 			Files.delete(Paths.get(input.toString()+"\\manifest-md5.txt"));
 			Files.delete(Paths.get(input.toString()+"\\tagmanifest-md5.txt"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
+		catch (IOException e) {e.printStackTrace();}
 	}
 
 	//copys folders to the desired output location
-	public static void copyFolder( Path src, Path dest ){
+	public void copyFolder(){
 	     try{
-	    	 Files.walk( src )
+	    	 Files.walk( input )
 	         .forEach( s ->{
 	        	 try
-	             {   Path d = dest.resolve( src.relativize(s) );
+	             {   Path d = output.resolve( input.relativize(s) );
 	                 if( Files.isDirectory( s ) )
 	                 {   if( !Files.exists( d ) )
 	                         Files.createDirectory( d );
@@ -62,13 +104,13 @@ public class Baglady {
 }
 
 	//zips the bag if requested
-	public static void pack(Path sourceDirPath, Path zipFilePath) throws IOException {
+	public void pack() throws IOException {
 	    Path p= null;
-		try {p = Files.createFile(zipFilePath);}
-		catch (IOException e) {p=zipFilePath;}
+		try {p = Files.createFile(output);}
+		catch (IOException e) {p=output;}
 	    
 		try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p))) {
-	        Path pp = sourceDirPath;
+	        Path pp = input;
 	        Files.walk(pp)
 	          .filter(path -> !Files.isDirectory(path))
 	          .forEach(path -> {
@@ -82,6 +124,32 @@ public class Baglady {
 	            }
 	          });
 	    }
+	}
+	
+	public void makeBag() throws NoSuchAlgorithmException, IOException
+	{
+		bag=BagCreator.bagInPlace(input, Arrays.asList(alg), false);
+	}
+	
+	public void writeBag() throws NoSuchAlgorithmException, IOException
+	{
+		BagWriter.write(bag, output);
+	}
+	
+	public void doeverything(boolean zip)
+	{
+		try {
+			makeBag();
+			writeBag();
+			if (zip)
+				pack();
+			else
+				copyFolder();
+			cleanFolder();
+		} 
+		catch (NoSuchAlgorithmException e) {e.printStackTrace();} 
+		catch (IOException e) {e.printStackTrace();}
+		
 	}
 
 }
