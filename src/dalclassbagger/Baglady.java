@@ -6,8 +6,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -20,17 +24,19 @@ public class Baglady {
 
 	Path input;
 	Path output;
+	Path metaoutput;
 	Bag bag;
 	StandardSupportedAlgorithms alg = StandardSupportedAlgorithms.MD5;
 	
 	public Baglady() {
 	}
 	
-	public Baglady(Path in, Path out,StandardSupportedAlgorithms alg)
+	public Baglady(Path in, Path out,Path metaoutput,StandardSupportedAlgorithms alg)
 	{
 		this.input=in;
 		this.output=out;
 		this.alg=alg;
+		this.metaoutput=metaoutput;
 	}
 	
 	public Path getInput() {
@@ -67,6 +73,14 @@ public class Baglady {
 
 	
 	
+	public Path getMetaoutput() {
+		return metaoutput;
+	}
+
+	public void setMetaoutput(Path metaoutput) {
+		this.metaoutput = metaoutput;
+	}
+
 	public void cleanFolder() {
 		copyFolder();
 		try {
@@ -139,6 +153,29 @@ public class Baglady {
 		BagWriter.write(bag, output);
 	}
 	
+	public void makeMetaData()throws IOException
+	{
+		
+		//SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd");
+		//String day=format.format(day);
+		String text ="";
+		  try {metaoutput.toFile().createNewFile();}
+		 catch (IOException e1) {e1.printStackTrace();}
+		 //String text="Created on "+day+"\r\n";
+		 List x = bag.getMetadata().getAll();
+		 for(Object item : x) {
+			 text+=item.toString()+"\r\n";
+		 }
+		 
+		 for (Object item : bag.getItemsToFetch())
+			 text+=item.toString();
+		 
+		byte data[]=text.getBytes();
+		try {Files.write(metaoutput, data);}
+		catch (IOException e) {e.printStackTrace();}
+}
+	
+	
 	public void doeverything(boolean zip)
 	{
 		try {
@@ -147,6 +184,7 @@ public class Baglady {
 			if (zip)
 				pack();
 			cleanFolder();
+			makeMetaData();
 		} 
 		catch (NoSuchAlgorithmException e) {e.printStackTrace();} 
 		catch (IOException e) {e.printStackTrace();}

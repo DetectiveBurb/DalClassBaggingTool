@@ -18,6 +18,7 @@ public class Baggui implements ActionListener{
 	 static JCheckBox zipped = new JCheckBox("zip the bag");
 	 static String[] algorithms = {"MD5","SHA-1","SHA224","SHA256","SHA512"};
 	 static JComboBox algorithmSelect = new JComboBox(algorithms); 
+	 static JButton metaDataB = new JButton("Save Meta Data as");
 	 
 	 
 	 final JFileChooser fc = new JFileChooser();
@@ -27,12 +28,21 @@ public class Baggui implements ActionListener{
 		open.addActionListener(this);
 		save.addActionListener(this);
 		start.addActionListener(this);
+		metaDataB.addActionListener(this);
 		this.baglady=baglady;
 		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		algorithmSelect.setSelectedIndex(0);
 	//	algorithmSelect.addActionListener(this);
 	}
 	 
+	public static JButton getMetaDataB() {
+		return metaDataB;
+	}
+
+	public static void setMetaDataB(JButton metaDataB) {
+		Baggui.metaDataB = metaDataB;
+	}
+
 	public void createAndShowGUI() {
 		JPanel p = new JPanel(new GridBagLayout());
 		
@@ -65,6 +75,10 @@ public class Baggui implements ActionListener{
 	    c.gridy=1;
 	    p.add(algorithmSelect,c);
 	    
+	    c.gridx=2;
+	    c.gridy=2;
+	    p.add(metaDataB,c);
+	    
 	    
 	    frame.getContentPane().add(p); 
 	    frame.pack();
@@ -91,6 +105,14 @@ public class Baggui implements ActionListener{
     		}
     	}
     	
+    	else if (e.getSource().equals(metaDataB)) {    	
+        	int returnVal = fc.showSaveDialog(metaDataB); 	
+        	if (returnVal == JFileChooser.APPROVE_OPTION)
+        	{
+        		baglady.setMetaoutput(fc.getSelectedFile().toPath());
+        	}
+    	}	
+    	  	
     	else if (e.getSource().equals(start)){
     		switch (algorithmSelect.getSelectedItem().toString()) {
     		case "MD5":
