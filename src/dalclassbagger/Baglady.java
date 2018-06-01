@@ -76,8 +76,8 @@ public class Baglady {
 		      .forEach(File::delete);
 			Files.delete(Paths.get(input.toString()+"\\bag-info.txt"));
 			Files.delete(Paths.get(input.toString()+"\\bagit.txt"));
-			Files.delete(Paths.get(input.toString()+"\\manifest-md5.txt"));
-			Files.delete(Paths.get(input.toString()+"\\tagmanifest-md5.txt"));
+			Files.delete(Paths.get(input.toString()+"\\manifest-"+alg+".txt"));
+			Files.delete(Paths.get(input.toString()+"\\tagmanifest-"+alg+".txt"));
 		} 
 		catch (IOException e) {e.printStackTrace();}
 	}
@@ -150,7 +150,6 @@ public class Baglady {
 		} 
 		catch (NoSuchAlgorithmException e) {e.printStackTrace();} 
 		catch (IOException e) {e.printStackTrace();}
-		
 	}
 
 }
