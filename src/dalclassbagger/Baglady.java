@@ -17,6 +17,7 @@ import java.util.zip.ZipOutputStream;
 
 import gov.loc.repository.bagit.creator.BagCreator;
 import gov.loc.repository.bagit.domain.Bag;
+import gov.loc.repository.bagit.domain.FetchItem;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import gov.loc.repository.bagit.writer.BagWriter;
 
@@ -27,6 +28,7 @@ public class Baglady {
 	Path metaoutput;
 	Bag bag;
 	StandardSupportedAlgorithms alg = StandardSupportedAlgorithms.MD5;
+	Boolean success=true;
 	
 	public Baglady() {
 	}
@@ -81,7 +83,15 @@ public class Baglady {
 		this.metaoutput = metaoutput;
 	}
 
-	public void cleanFolder() {
+	public Boolean getSuccess() {
+		return success;
+	}
+
+	public void setSuccess(Boolean success) {
+		this.success = success;
+	}
+
+	public void cleanFolder(Boolean zip) {
 		copyFolder();
 		try {
 			Files.walk(Paths.get(input.toString()+"\\data"))
@@ -92,6 +102,13 @@ public class Baglady {
 			Files.delete(Paths.get(input.toString()+"\\bagit.txt"));
 			Files.delete(Paths.get(input.toString()+"\\manifest-"+alg+".txt"));
 			Files.delete(Paths.get(input.toString()+"\\tagmanifest-"+alg+".txt"));
+			if (zip)
+				Files.walk(output)
+			      .sorted(Comparator.reverseOrder())
+			      .map(Path::toFile)
+			      .forEach(File::delete);
+				
+			
 		} 
 		catch (IOException e) {e.printStackTrace();}
 	}
@@ -156,19 +173,17 @@ public class Baglady {
 	public void makeMetaData()throws IOException
 	{
 		
-		//SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd");
-		//String day=format.format(day);
+		Path[] payload = Files.walk(bag.getRootDir()).filter(Files::isRegularFile).toArray(Path[]::new);
 		String text ="";
-		  try {metaoutput.toFile().createNewFile();}
-		 catch (IOException e1) {e1.printStackTrace();}
-		 //String text="Created on "+day+"\r\n";
-		 List x = bag.getMetadata().getAll();
-		 for(Object item : x) {
+		try {metaoutput.toFile().createNewFile();}
+		catch (IOException e1) {e1.printStackTrace();}
+		List x = bag.getMetadata().getAll();
+		for(Object item : x) {
 			 text+=item.toString()+"\r\n";
-		 }
+		}
 		 
-		 for (Object item : bag.getItemsToFetch())
-			 text+=item.toString();
+		for (Path item : payload)
+			 text+=item.toString()+"\r\n";
 		 
 		byte data[]=text.getBytes();
 		try {Files.write(metaoutput, data);}
@@ -183,11 +198,11 @@ public class Baglady {
 			writeBag();
 			if (zip)
 				pack();
-			cleanFolder();
 			makeMetaData();
+			cleanFolder(zip);
 		} 
-		catch (NoSuchAlgorithmException e) {e.printStackTrace();} 
-		catch (IOException e) {e.printStackTrace();}
+		catch (NoSuchAlgorithmException e) {e.printStackTrace(); this.success=false;} 
+		catch (IOException e) {e.printStackTrace(); this.success=false;}
 	}
 
 }
