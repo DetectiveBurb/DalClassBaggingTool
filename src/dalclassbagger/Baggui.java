@@ -1,13 +1,17 @@
 package dalclassbagger;
 
+import java.awt.Dimension;
 import java.awt.FileDialog;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.file.Paths;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.FileChooserUI;
 
 import com.alee.laf.WebLookAndFeel;
@@ -21,13 +25,13 @@ public class Baggui implements ActionListener{
 	 static JButton start = new JButton("Bag!");
 	 static JCheckBox zipped = new JCheckBox("zip the bag");
 	 static String[] algorithms = {"MD5","SHA-1","SHA224","SHA256","SHA512"};
-	 static String[] profiles = {"test", "Hello", "Out", "Of","Time"};
-	 static JComboBox algorithmSelect = new JComboBox(algorithms); 
-	 static JComboBox profileSelect = new JComboBox(profiles);
-	 static JButton metaDataB = new JButton("Save Meta Data as");
-	 static JTextField saveField = new JTextField(10);
-	 static JTextField openField = new JTextField(10);
-	 static JTextField metaField = new JTextField(10);
+	 static String[] profiles = {"No Profile", "Hello", "Out", "Of","Time"};
+	 static JComboBox<String> algorithmSelect = new JComboBox<String>(algorithms); 
+	 static JComboBox<String> profileSelect = new JComboBox<String>(profiles);
+	 static JButton metaDataB = new JButton("Save Meta Data");
+	 static JTextField saveField = new JTextField(17);
+	 static JTextField openField = new JTextField(17);
+	 static JTextField metaField = new JTextField(17);
 
 	 
 	 
@@ -79,7 +83,17 @@ public class Baggui implements ActionListener{
 		
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    GridBagConstraints c = new GridBagConstraints();
+	    c.ipadx=4;
+	    c.ipady=4;
+	    c.insets=new Insets(4,12,4,15);
+
 	
+	    open.setPreferredSize(new Dimension(120,35));
+	    save.setPreferredSize(new Dimension(120,35));
+	    profileSelect.setPreferredSize(new Dimension(120,22));
+	    metaDataB.setPreferredSize(new Dimension(120,35));
+	    algorithmSelect.setPreferredSize(new Dimension(120,22));
+	    
 	    c.gridx=0;
 	    c.gridy=0;
 	    p.add(profileSelect,c);
@@ -103,22 +117,23 @@ public class Baggui implements ActionListener{
 	    p.add(metaDataB,c);
 	    c.gridx=1;
 	    p.add(metaField,c);
-	    	    
+	    
 	    c.gridx=0;
 	    c.gridy=4;
-	    p.add(zipped,c);
+	    p.add(algorithmSelect,c);
 	    
 	    c.gridx=0;
 	    c.gridy=5;
-	    p.add(algorithmSelect,c);
-	    
-	   
+	    p.add(zipped,c);
 	    
 	    c.gridy=5;
 	    c.gridx=4;
 	    p.add(start,c);
 	    
+	    //saveField.setText(baglady.getOutput().toString());
+	    
 	    frame.getContentPane().add(p); 
+	    frame.setLocationRelativeTo(null);
 	    frame.pack();
 	    frame.setVisible(true);
 	}
@@ -133,6 +148,7 @@ public class Baggui implements ActionListener{
     		{
     			baglady.setInput(fc.getSelectedFile().toPath());
     			openField.setText(fc.getSelectedFile().toString());
+    			saveField.setText(System.getProperty("user.home")+baglady.delimeter+"Desktop"+baglady.delimeter+baglady.getInput().getFileName()+baglady.delimeter);
     		}
     	}
     	
@@ -145,13 +161,16 @@ public class Baggui implements ActionListener{
     		}
     	}
     	
-    	else if (e.getSource().equals(metaDataB)) {    	
+    	else if (e.getSource().equals(metaDataB)) {
+    		FileNameExtensionFilter filter = new FileNameExtensionFilter("TEXT FILES", "txt", "text");
+    		fc.setFileFilter(filter);
         	int returnVal = fc.showSaveDialog(metaDataB); 	
         	if (returnVal == JFileChooser.APPROVE_OPTION)
         	{
         		baglady.setMetaoutput(fc.getSelectedFile().toPath());
         		metaField.setText(fc.getSelectedFile().toString());
         	}
+        	fc.setFileFilter(null);
     	}	
     	  	
     	else if (e.getSource().equals(start)){
@@ -172,6 +191,13 @@ public class Baggui implements ActionListener{
     			baglady.setAlg(StandardSupportedAlgorithms.SHA512);
     			break;
     		}
+    		
+    		if (baglady.getOutput()==null && !saveField.getText().equals(""))
+    			baglady.setOutput(Paths.get(saveField.getText()));    
+    	
+    		if (baglady.getMetaoutput() != null)
+    			if (baglady.getMetaoutput().toString().indexOf(".txt")==-1 || baglady.getMetaoutput().toString().indexOf(".text")==-1)
+    				baglady.setMetaoutput(Paths.get(baglady.getMetaoutput().toString()+".txt"));
    
     		baglady.doeverything(zipped.isSelected());
     		

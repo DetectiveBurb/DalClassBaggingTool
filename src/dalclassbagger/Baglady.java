@@ -29,8 +29,17 @@ public class Baglady {
 	Bag bag;
 	StandardSupportedAlgorithms alg = StandardSupportedAlgorithms.MD5;
 	Boolean success=true;
+	String delimeter ="";
 	
 	public Baglady() {
+		if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0)
+			delimeter = "\\";
+		else if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0)
+			delimeter = "/";
+		else if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0)
+			delimeter = "/";	
+		
+		metaoutput = null;
 	}
 	
 	public Baglady(Path in, Path out,Path metaoutput,StandardSupportedAlgorithms alg)
@@ -39,6 +48,11 @@ public class Baglady {
 		this.output=out;
 		this.alg=alg;
 		this.metaoutput=metaoutput;
+		
+		if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0)
+			delimeter = "\\";
+		else
+			delimeter = "/";
 	}
 	
 	public Path getInput() {
@@ -98,10 +112,10 @@ public class Baglady {
 		      .sorted(Comparator.reverseOrder())
 		      .map(Path::toFile)
 		      .forEach(File::delete);
-			Files.delete(Paths.get(input.toString()+"\\bag-info.txt"));
-			Files.delete(Paths.get(input.toString()+"\\bagit.txt"));
-			Files.delete(Paths.get(input.toString()+"\\manifest-"+alg+".txt"));
-			Files.delete(Paths.get(input.toString()+"\\tagmanifest-"+alg+".txt"));
+			Files.delete(Paths.get(input.toString()+delimeter+"bag-info.txt"));
+			Files.delete(Paths.get(input.toString()+delimeter+"bagit.txt"));
+			Files.delete(Paths.get(input.toString()+delimeter+"manifest-"+alg+".txt"));
+			Files.delete(Paths.get(input.toString()+delimeter+"tagmanifest-"+alg+".txt"));
 			if (zip)
 				Files.walk(output)
 			      .sorted(Comparator.reverseOrder())
@@ -198,7 +212,8 @@ public class Baglady {
 			writeBag();
 			if (zip)
 				pack();
-			makeMetaData();
+			if (metaoutput !=null)
+				makeMetaData();
 			cleanFolder(zip);
 		} 
 		catch (NoSuchAlgorithmException e) {e.printStackTrace(); this.success=false;} 
