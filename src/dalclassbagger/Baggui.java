@@ -1,19 +1,19 @@
 package dalclassbagger;
 
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.FileChooserUI;
-
 import com.alee.laf.WebLookAndFeel;
 
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
@@ -37,63 +37,73 @@ public class Baggui implements ActionListener{
 	 
 	 final JFileChooser fc = new JFileChooser();
 	 Baglady baglady=null;
-	 
+	
+	 //constructor, adds action listeners
 	public Baggui(Baglady baglady){
 		open.addActionListener(this);
 		save.addActionListener(this);
 		start.addActionListener(this);
 		metaDataB.addActionListener(this);
-		saveField.addActionListener(this);
-		openField.addActionListener(this);
-		metaField.addActionListener(this);
+		profileSelect.addActionListener(this);
 		this.baglady=baglady;
 		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		algorithmSelect.setSelectedIndex(0);
-	//	algorithmSelect.addActionListener(this);
+		algorithmSelect.addActionListener(this);
 	}
-	 
-	public static JButton getMetaDataB() {
-		return metaDataB;
-	}
-
-	public static void setMetaDataB(JButton metaDataB) {
-		Baggui.metaDataB = metaDataB;
-	}
-
+	
+	//creates and styles gui
 	public void createAndShowGUI() {
+		//Color slategrey = new Color(112,115,114);
+		Color dalgold =new Color(192,140,12);
+		
 		JPanel p = new JPanel(new GridBagLayout());	
 		
-		  WebLookAndFeel.install();
-		//JFrame.setDefaultLookAndFeelDecorated(true);        
-		/*  try {
-		    //  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		//so it's not hideous 
+		WebLookAndFeel.install();
 		
-		    } catch (ClassNotFoundException e) {
-		      e.printStackTrace();
-		    } catch (InstantiationException e) {
-		      e.printStackTrace();
-		    } catch (IllegalAccessException e) {
-		      e.printStackTrace();
-		    } catch (UnsupportedLookAndFeelException e) {
-		      e.printStackTrace();
-		    }*/
-		  
+		//misc window setup
 		JFrame frame = new JFrame("Dal Class Bagger Tool");  
 		SwingUtilities.updateComponentTreeUI(frame);	
-		
+		frame.setResizable(false);
+		try {frame.setIconImage(ImageIO.read(new File("C:\\\\Users\\\\Student\\\\Pictures\\\\Dalfavicon.png")));} 
+		catch (IOException e) {e.printStackTrace();}
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    
+	    //coloring buttons
+	    p.setBackground(new Color(255,255,255));
+	    open.setBackground(Color.WHITE);
+	    save.setBackground(Color.WHITE);
+	    metaDataB.setBackground(Color.WHITE);
+	    zipped.setBackground(Color.WHITE);
+	    start.setBackground(Color.WHITE);
+	    profileSelect.setBackground(Color.WHITE);
+	    algorithmSelect.setBackground(Color.WHITE); 
+	   
+	    
+	    //coloring text
+	    open.setForeground(dalgold);
+	    save.setForeground(dalgold);
+	    metaDataB.setForeground(dalgold);
+	    zipped.setForeground(dalgold);
+	    start.setForeground(dalgold);
+	    profileSelect.setForeground(dalgold);
+	    algorithmSelect.setForeground(dalgold);
+	    saveField.setForeground(dalgold);
+	    openField.setForeground(dalgold);
+	    metaField.setForeground(dalgold);
+
+	    //configuring spacing
 	    GridBagConstraints c = new GridBagConstraints();
 	    c.ipadx=4;
 	    c.ipady=4;
 	    c.insets=new Insets(4,12,4,15);
-
-	
 	    open.setPreferredSize(new Dimension(120,35));
 	    save.setPreferredSize(new Dimension(120,35));
 	    profileSelect.setPreferredSize(new Dimension(120,22));
 	    metaDataB.setPreferredSize(new Dimension(120,35));
 	    algorithmSelect.setPreferredSize(new Dimension(120,22));
 	    
+	    //positioning components
 	    c.gridx=0;
 	    c.gridy=0;
 	    p.add(profileSelect,c);
@@ -130,8 +140,7 @@ public class Baggui implements ActionListener{
 	    c.gridx=4;
 	    p.add(start,c);
 	    
-	    //saveField.setText(baglady.getOutput().toString());
-	    
+	    //building window
 	    frame.getContentPane().add(p); 
 	    frame.setLocationRelativeTo(null);
 	    frame.pack();
@@ -140,18 +149,20 @@ public class Baggui implements ActionListener{
 	
 	
     
-
+	//event listeners 
     public void actionPerformed(ActionEvent e) {
+    	//for bag selection
     	if (e.getSource().equals(open)) {    	
     		int returnVal = fc.showOpenDialog(open); 	
     		if (returnVal == JFileChooser.APPROVE_OPTION)
     		{
     			baglady.setInput(fc.getSelectedFile().toPath());
+    			//files in fields, also defaults output to desktop with the same name
     			openField.setText(fc.getSelectedFile().toString());
     			saveField.setText(System.getProperty("user.home")+baglady.delimeter+"Desktop"+baglady.delimeter+baglady.getInput().getFileName()+baglady.delimeter);
     		}
     	}
-    	
+    	//for output, updates field as well
     	else if (e.getSource().equals(save)) {    	
     		int returnVal = fc.showSaveDialog(save); 	
     		if (returnVal == JFileChooser.APPROVE_OPTION)
@@ -161,8 +172,10 @@ public class Baggui implements ActionListener{
     		}
     	}
     	
+    	//for metadata.txt output, only accepts .txt 
+    	//will add .txt to file is not typed in
     	else if (e.getSource().equals(metaDataB)) {
-    		FileNameExtensionFilter filter = new FileNameExtensionFilter("TEXT FILES", "txt", "text");
+    		FileNameExtensionFilter filter = new FileNameExtensionFilter("text files", "txt", "text");
     		fc.setFileFilter(filter);
         	int returnVal = fc.showSaveDialog(metaDataB); 	
         	if (returnVal == JFileChooser.APPROVE_OPTION)
@@ -172,7 +185,9 @@ public class Baggui implements ActionListener{
         	}
         	fc.setFileFilter(null);
     	}	
-    	  	
+    	 
+    	//"bag!" gets selected algorithm, as well as captures
+    	//data if it was entered into the fields manually
     	else if (e.getSource().equals(start)){
     		switch (algorithmSelect.getSelectedItem().toString()) {
     		case "MD5":
@@ -192,15 +207,25 @@ public class Baggui implements ActionListener{
     			break;
     		}
     		
+    		//getting manual field input
+    		if (baglady.getInput()==null && !openField.getText().equals(""))
+    			baglady.setInput(Paths.get(openField.getText()));
+    		
     		if (baglady.getOutput()==null && !saveField.getText().equals(""))
     			baglady.setOutput(Paths.get(saveField.getText()));    
     	
     		if (baglady.getMetaoutput() != null)
-    			if (baglady.getMetaoutput().toString().indexOf(".txt")==-1 || baglady.getMetaoutput().toString().indexOf(".text")==-1)
-    				baglady.setMetaoutput(Paths.get(baglady.getMetaoutput().toString()+".txt"));
+    			{
+    				if (baglady.getMetaoutput().toString().indexOf(".txt")==-1 || baglady.getMetaoutput().toString().indexOf(".text")==-1)
+    					baglady.setMetaoutput(Paths.get(baglady.getMetaoutput().toString()+".txt"));
+    			}
+    		else if (baglady.getMetaoutput()==null && !metaField.getText().equals(""))
+    			baglady.setMetaoutput(Paths.get(metaField.getText()));
    
+    		//makes the bag with options enabled
     		baglady.doeverything(zipped.isSelected());
     		
+    		//determines if successful and notify's the user
     		if (baglady.getSuccess())
     		{
     			JOptionPane.showMessageDialog(null, "Bag Created Successfully");
@@ -211,22 +236,11 @@ public class Baggui implements ActionListener{
     		}
     	}
     	
-    	else if (e.getSource().equals(saveField))
-    	{
-    		baglady.setOutput(Paths.get(saveField.getText()));
-    	}
     	
-    	else if (e.getSource().equals(openField))
+    	else if (e.getSource().equals(profileSelect))
     	{
-    		baglady.setInput(Paths.get(openField.getText()));
-
+    		baglady.setProfile(profileSelect.getSelectedItem().toString());
     	}
-    	
-    	else if (e.getSource().equals(metaField))
-    	{
-    		baglady.setMetaoutput(Paths.get(openField.getText()));
-    	}
-    	
     	
     }
 

@@ -1,9 +1,25 @@
 package dalclassbagger;
 
-public class profile {
+public class Profile {
 	
-	public profile() {
+	public Profile() {
 		
+	}
+	
+	public Profile(String name) {
+		switch (name) {
+			case "No Profile":
+				break;
+		/*	case "":
+				break;
+			case "":
+				break;
+			case "":
+				break;
+			case "":
+				break;
+				*/
+		}
 	}
 
 }

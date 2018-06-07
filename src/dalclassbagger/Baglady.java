@@ -7,17 +7,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import gov.loc.repository.bagit.creator.BagCreator;
 import gov.loc.repository.bagit.domain.Bag;
-import gov.loc.repository.bagit.domain.FetchItem;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import gov.loc.repository.bagit.writer.BagWriter;
 
@@ -30,13 +27,15 @@ public class Baglady {
 	StandardSupportedAlgorithms alg = StandardSupportedAlgorithms.MD5;
 	Boolean success=true;
 	String delimeter ="";
+	Profile profile;
 	
+	//constructors
 	public Baglady() {
+		
+		//determining OS's file path delimiter
 		if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0)
 			delimeter = "\\";
-		else if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0)
-			delimeter = "/";
-		else if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0)
+		else 
 			delimeter = "/";	
 		
 		metaoutput = null;
@@ -55,6 +54,7 @@ public class Baglady {
 			delimeter = "/";
 	}
 	
+	//getters and setters
 	public Path getInput() {
 		return input;
 	}
@@ -69,6 +69,14 @@ public class Baglady {
 
 	public void setOutput(Path output) {
 		this.output = output;
+	}
+
+	public Profile getProfile() {
+		return profile;
+	}
+
+	public void setProfile(String name) {
+		this.profile = new Profile(name);
 	}
 
 	public Bag getBag() {
@@ -86,8 +94,6 @@ public class Baglady {
 	public void setAlg(StandardSupportedAlgorithms alg) {
 		this.alg = alg;
 	}
-
-	
 	
 	public Path getMetaoutput() {
 		return metaoutput;
@@ -105,6 +111,9 @@ public class Baglady {
 		this.success = success;
 	}
 
+	//method to clean up folders, this API can only make bags in their current Location
+	//this restores the folder to it's previous state
+	//will also take care of extra files from zipping the folder
 	public void cleanFolder(Boolean zip) {
 		copyFolder();
 		try {
@@ -128,6 +137,7 @@ public class Baglady {
 	}
 
 	//copys folders to the desired output location
+	//as the API only makes bag in place, this will put them in the desired output
 	public void copyFolder(){
 		Path src = Paths.get(input.toString()+"\\data");
 	     try{
@@ -167,13 +177,13 @@ public class Baglady {
 	                  zs.putNextEntry(zipEntry);
 	                  Files.copy(path, zs);
 	                  zs.closeEntry();
-	            } catch (IOException e) {
-	                System.err.println(e);
-	            }
-	          });
+	                  }
+	              catch (IOException e) {System.err.println(e);}
+	          					});
 	    }
 	}
 	
+	//just a wrapper for the api functions
 	public void makeBag() throws NoSuchAlgorithmException, IOException
 	{
 		bag=BagCreator.bagInPlace(input, Arrays.asList(alg), false);
@@ -184,27 +194,36 @@ public class Baglady {
 		BagWriter.write(bag, output);
 	}
 	
+	//make our own metadata file 
 	public void makeMetaData()throws IOException
 	{
-		
+		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+		//get all files in the bag as an array
 		Path[] payload = Files.walk(bag.getRootDir()).filter(Files::isRegularFile).toArray(Path[]::new);
 		String text ="";
+		//make the file
 		try {metaoutput.toFile().createNewFile();}
 		catch (IOException e1) {e1.printStackTrace();}
+		//get bag metadata (version, etc)
 		List x = bag.getMetadata().getAll();
+		
+		//add data to string
 		for(Object item : x) {
 			 text+=item.toString()+"\r\n";
 		}
 		 
-		for (Path item : payload)
-			 text+=item.toString()+"\r\n";
-		 
+		for (Path item : payload) {
+			
+			text+=item.toString()+"\t"+sdf.format(item.toFile().lastModified())+"\t"+item.toFile().length()+"B \r\n";
+		}
+		
+		//print string to file
 		byte data[]=text.getBytes();
 		try {Files.write(metaoutput, data);}
 		catch (IOException e) {e.printStackTrace();}
 }
 	
-	
+	//what happens when start is pushed, creates bag and cleans up after it.
 	public void doeverything(boolean zip)
 	{
 		try {
