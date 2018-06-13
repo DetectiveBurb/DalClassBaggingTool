@@ -15,6 +15,7 @@ import java.util.zip.ZipOutputStream;
 
 import gov.loc.repository.bagit.creator.BagCreator;
 import gov.loc.repository.bagit.domain.Bag;
+import gov.loc.repository.bagit.domain.Metadata;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import gov.loc.repository.bagit.writer.BagWriter;
 
@@ -27,7 +28,7 @@ public class Baglady {
 	StandardSupportedAlgorithms alg = StandardSupportedAlgorithms.MD5;
 	Boolean success=true;
 	String delimeter ="";
-	Profile profile;
+	Metadata metadata;
 	
 	//constructors
 	public Baglady() {
@@ -71,14 +72,7 @@ public class Baglady {
 		this.output = output;
 	}
 
-	public Profile getProfile() {
-		return profile;
-	}
-
-	public void setProfile(String name) {
-		this.profile = new Profile(name);
-	}
-
+	
 	public Bag getBag() {
 		return bag;
 	}
@@ -144,9 +138,11 @@ public class Baglady {
 	    	 Files.walk(Paths.get(input.toString()+"\\data"))
 	         .forEach( s ->{
 	        	 try
-	             {   Path d = input.resolve( src.relativize(s) );
+	             {   
+	        		 Path d = input.resolve( src.relativize(s) );
 	                 if( Files.isDirectory( s ) )
-	                 {   if( !Files.exists( d ) )
+	                 {   
+	                	 if( !Files.exists( d ) )
 	                         Files.createDirectory( d );
 	                     return;
 	                 }
@@ -201,9 +197,11 @@ public class Baglady {
 		//get all files in the bag as an array
 		Path[] payload = Files.walk(bag.getRootDir()).filter(Files::isRegularFile).toArray(Path[]::new);
 		String text ="";
+		
 		//make the file
 		try {metaoutput.toFile().createNewFile();}
 		catch (IOException e1) {e1.printStackTrace();}
+		
 		//get bag metadata (version, etc)
 		List x = bag.getMetadata().getAll();
 		
@@ -213,7 +211,6 @@ public class Baglady {
 		}
 		 
 		for (Path item : payload) {
-			
 			text+=item.toString()+"\t"+sdf.format(item.toFile().lastModified())+"\t"+item.toFile().length()+"B \r\n";
 		}
 		
