@@ -3,6 +3,7 @@ package dalclassbagger;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -18,13 +19,11 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
-
 import com.alee.laf.WebLookAndFeel;
-
+import com.github.lgooddatepicker.*;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 
 public class Baggui implements ActionListener{
@@ -34,7 +33,7 @@ public class Baggui implements ActionListener{
 	static JButton start = new JButton("Bag it!");
 	static JCheckBox zipped = new JCheckBox("zip the bag");
 	static String[] algorithms = {"MD5","SHA-1","SHA224","SHA256","SHA512"};
-	static String[] profiles = {"No Profile", "DalClass", "Out", "Of","Time"};
+	static String[] profiles = {"No Profile", "DalClass", "Digital Records Accession Generic"};
 	static JComboBox<String> algorithmSelect = new JComboBox<String>(algorithms); 
 	static JComboBox<String> profileSelect = new JComboBox<String>(profiles);
 //	static JButton metaDataB = new JButton("Save metadata");
@@ -99,6 +98,8 @@ public class Baggui implements ActionListener{
 		catch (IOException e) {e.printStackTrace();}
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    
+	    Font f = new Font("serif", Font.PLAIN, 16);
+	    
 	    //coloring buttons
 	    p.setBackground(Color.WHITE);
 	    open.setBackground(dalgold);
@@ -132,6 +133,8 @@ public class Baggui implements ActionListener{
 	    profileSelect.setPreferredSize(new Dimension(120,22));
 	    algorithmSelect.setPreferredSize(new Dimension(120,22));
 	    
+	    saveField.setFont(f);
+	    openField.setFont(f);
 	    
 	    //positioning components
 	    c.gridx=0;
@@ -193,7 +196,6 @@ public class Baggui implements ActionListener{
 		    String key = entry.getKey();
 		    Component field =  entry.getValue();
 		    JLabel label = new JLabel(key+":");
-		    
 		    p.add(label,c);
 		    c.gridx++;
 		    
@@ -289,35 +291,35 @@ public class Baggui implements ActionListener{
     		//makes the bag with options enabled
     		int fields = fieldsFilled();
     		
-    			if (fields==1){
-    				baglady.doeverything(zipped.isSelected());
-    				if (baglady.getSuccess())
-    				{
-    					JOptionPane.showMessageDialog(null, "Bag Created Successfully");
-    				}
-    				else
-    				{
-    					JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");
-    				}
+    		if (fields==1){
+    			baglady.doeverything(zipped.isSelected());
+    			if (baglady.getSuccess())
+    			{
+    				JOptionPane.showMessageDialog(null, "Bag Created Successfully");
     			}
-    			
-    			else if (fields == 2){
-    				JOptionPane.showMessageDialog(null, "Please make sure all fields filled");
+    			else
+    			{
+    				JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");
     			}
+    		}
+    		
+    		else if (fields == 2){
+    			JOptionPane.showMessageDialog(null, "Please make sure all fields filled");
+    		}
+    		
+    		else if (fields == 3){
+    			baglady.doeverything(zipped.isSelected(), customFields);
     			
-    			else if (fields == 3){
-    				baglady.doeverything(zipped.isSelected(), customFields);
-    				
-    				if (baglady.getSuccess())
-    				{
-    					JOptionPane.showMessageDialog(null, "Bag Created Successfully");
-    				}
-    				else
-    				{
-    					JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");
-    				}
+    			if (baglady.getSuccess())
+    			{
+    				JOptionPane.showMessageDialog(null, "Bag Created Successfully");
+    			}
+    			else
+    			{
+    				JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");
+    			}
 
-    			}
+    		}
     			
     		}    		
     	
@@ -365,20 +367,6 @@ public class Baggui implements ActionListener{
 		return true;
 	}
 	
-	private String getFilled(Component value) {
-		RequiredComboBox box =new RequiredComboBox();
-		RequiredTextField field= new RequiredTextField();
-		if (value.getClass().equals(box.getClass())) 
-		{
-			return ((RequiredComboBox) value).getSelectedItem().toString();
-		}
-		else if (value.getClass().equals(field.getClass()))
-		{
-			return ((RequiredTextField) value).getText();
-		} 
-		return "";
-	}
-	
 	private boolean isRequired(Component value) {
 		RequiredComboBox box =new RequiredComboBox();
 		RequiredTextField field= new RequiredTextField();
@@ -388,7 +376,7 @@ public class Baggui implements ActionListener{
 		}
 		else if (value.getClass().equals(field.getClass()))
 		{
-			((RequiredTextField) value).isRequired();
+			return ((RequiredTextField) value).isRequired();
 		} 
 		return false;
 	}

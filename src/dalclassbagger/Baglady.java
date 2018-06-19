@@ -20,6 +20,8 @@ import java.util.zip.ZipOutputStream;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
+import com.github.lgooddatepicker.components.DatePicker;
+
 import gov.loc.repository.bagit.creator.BagCreator;
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.Metadata;
@@ -280,6 +282,7 @@ public class Baglady {
 	private String getFilled(Component value) {
 		RequiredComboBox box =new RequiredComboBox();
 		RequiredTextField field= new RequiredTextField();
+		DatePicker datepicker = new DatePicker();
 		if (value.getClass().equals(box.getClass())) 
 		{
 			return ((RequiredComboBox) value).getSelectedItem().toString();
@@ -288,6 +291,10 @@ public class Baglady {
 		{
 			return ((RequiredTextField) value).getText().toString();
 		} 
+		else if (value.getClass().equals(datepicker.getClass()))
+		{
+			return ((DatePicker)value).getDateStringOrEmptyString();
+		}
 		return "";
 	}
 
