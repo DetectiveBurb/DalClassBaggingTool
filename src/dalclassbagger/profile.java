@@ -2,53 +2,97 @@ package dalclassbagger;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-
+import java.util.Scanner;
+import javax.net.ssl.HttpsURLConnection;
 import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.JTextField;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.border.Border;
-import javax.swing.text.JTextComponent;
+import org.json.HTTP;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 
-//import javafx.scene.paint.Color;
+import sun.net.www.http.HttpClient;
 
 
-public class Profile {
+import java.security.*;
+import java.security.cert.*;
+
+import javax.net.ssl.*;
+
+public class Profile{
 	
-	String name;
+	int selected;
+	Baggui gui;
 	Map<String, Component> map;
 	
 	public Profile() {
 		map=new HashMap<String, Component>();
+		
+		try {
+			getCertificate();
+		} catch (KeyStoreException e1) {
+			e1.printStackTrace();
+		} catch (NoSuchAlgorithmException e1) {
+			e1.printStackTrace();
+		} catch (CertificateException e1) {
+			e1.printStackTrace();
+		} catch (KeyManagementException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	public Profile(String name) {
-		this.name=name;
-		map=new HashMap<String, Component>();
+	public Profile(int selected, Baggui baggui) {
+		this.selected=selected;
+		map=new LinkedHashMap<String, Component>();
+		gui = baggui;
+		
+		
+		try {
+			getCertificate();
+		} catch (KeyStoreException e1) {
+			e1.printStackTrace();
+		} catch (NoSuchAlgorithmException e1) {
+			e1.printStackTrace();
+		} catch (CertificateException e1) {
+			e1.printStackTrace();
+		} catch (KeyManagementException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public Map<String, Component> getMetaFields()
 	{
-		switch(name) {
 		
-		case "DalClass":{
-			String[] functions={"",
-					"AD Admninistration",
-	                "CS Campus Services",
-	                "ER External Relations and Communicatons",
-	                "FP Facilities and Property",
-	                "FN Finance",
-	                "GV Governance",
-	                "HL Health and Human Safety",
-	                "HR Human Resources",
-	                "IM Information Management and Technology",
-	                "RS Research",
-	                "ST Students",
-	                "TL Teaching and Learning"};
+	switch(selected) {
+		case 1:
+		String[] functions = null;
+		try {functions = updateFunctions();} 
+		catch (IOException e) {e.printStackTrace();}
+		
 			String[] recordSeries= {  "AD01 Adminstration General",
                     "AD10 Advice and Inquiries",
                     "AD20 Appreciation and Complaints"};
@@ -60,8 +104,6 @@ public class Profile {
 			String[] personalInfo= { "unknown",  
 					"Yes",
                     "No"};
-			
-			
 			
 			RequiredTextField transferNumber = new RequiredTextField(17);
 			RequiredTextField sessionNumber = new RequiredTextField(17);
@@ -93,31 +135,21 @@ public class Profile {
 			map.put("Receiving Department",receivingDepartment);
 			map.put("Business Function",new RequiredComboBox(functions));
 			map.put("DalClass Record Series",new RequiredComboBox(recordSeries));
-			map.put("Summary of records",summary);
-		
-			//	map.put("Records Creation Start Date",new RequiredTextField(17));
-			map.put("Records Creation Start Date",new DatePicker(dateSettings));
-			
-			//map.put("Records Creation End Date",new RequiredTextField(17));
-			map.put("Records Creation End Date",new DatePicker(dateSettings2));
-			
+			map.put("Summary of records",summary);	
+			map.put("Records Creation Start Date",new DatePicker(dateSettings));	
+			map.put("Records Creation End Date",new DatePicker(dateSettings2));		
 			map.put("Digital Originality",new RequiredComboBox(digitalOriginal));
 			map.put("Location of Physical Records (if digitized and kept)",new RequiredTextField(17));	
 			map.put("Contains personal information",containsPersonalInformation);
 			map.put("Notes",new RequiredTextField(17));
 			
+			((RequiredComboBox) map.get("Business Function")).addActionListener(gui);
 				
-	/*		((RequiredTextField) map.get("Transfer Number")).setRequired(true);
-			((RequiredTextField) map.get("Session Number")).setRequired(true);
-			((RequiredTextField) map.get("Receiving Department")).setRequired(true);
-			((RequiredTextField) map.get("Summary of records")).setRequired(true);
-			((RequiredComboBox) map.get("Contains personal information")).setRequired(true);  */
-
-
 			((RequiredTextField) map.get("Receiving Department")).setText("Dalhousie University Archives");
-		}
+			
+			break;
 		
-		case "Digital Records Accession Generic":{
+		case 2:
 			
 			String[] recordsRetentionType= { "???",
                     "Permanent (Keep Forever)",
@@ -286,12 +318,99 @@ public class Profile {
 			map.put("OAIS Digital Curation Lifecycle",new RequiredComboBox(OAISdigitalCurationLifecycle));
 			map.put("Notes",new RequiredTextField(17));
 			map.put("Accession Bag Creator",new RequiredTextField(17));
-			
-		}
+			break;
 		
 		}
 		
 		return map;
 	}
+	
+	
+	private String[] updateFunctions() throws IOException {
+		URL dalclass = null;
+		try {dalclass = new URL("https://util.library.dal.ca/dalclass/index.php?action=clientgettable&table=sections&client=Miles");} 
+		catch (MalformedURLException e) {e.printStackTrace();}	
+		
+		HttpsURLConnection con = (HttpsURLConnection)dalclass.openConnection();
+		con.setRequestMethod("GET");
+		
+		ArrayList<String> options=new ArrayList<String>();
+		
+		JSONTokener tokener = new JSONTokener(con.getInputStream());
+		JSONObject json = new JSONObject(tokener);	
+		JSONArray jsons = (JSONArray) json.get("data");
+	
+		for(int i=0;i<jsons.length();i++)
+		{
+			JSONObject curr = (JSONObject) jsons.get(i);
+			String name=(String) curr.get("name");
+			String code=(String) curr.get("code");
+			String s = code+" "+name;	
+			options.add(s);
+		}
+	
+		con.disconnect();
+		return options.toArray(new String[options.size()]);
+	}
+
+	public String[] updateComboBox(String series) throws IOException 
+	{		
+		URL dalclass = null;
+		
+		try {dalclass = new URL("https://util.library.dal.ca/dalclass/index.php?action=clientgettable&table=records&client=Miles");} 
+		catch (MalformedURLException e) {e.printStackTrace();}	
+		
+		HttpsURLConnection con = (HttpsURLConnection)dalclass.openConnection();
+		con.setRequestMethod("GET");
+		con.connect();
+		
+		ArrayList<String> options=new ArrayList<String>();
+		
+		JSONTokener tokener = new JSONTokener(con.getInputStream());
+		JSONObject json = new JSONObject(tokener);	
+		JSONArray jsons = (JSONArray) json.get("data");
+	
+		for(int i=0;i<jsons.length();i++)
+		{
+			JSONObject curr = (JSONObject) jsons.get(i);
+			String num=(String) curr.get("series_number");
+			String title=(String) curr.get("series_title");
+			String s = num+" "+title;		
+
+			if (num.substring(0,2).equals(series.substring(0, 2)))
+				{options.add(s);}
+		}
+	
+		con.disconnect();
+		
+		return options.toArray(new String[options.size()]);
+	}
+
+	private void getCertificate() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, KeyManagementException {
+		
+		TrustManager[] trustAllCerts = new TrustManager[] { 
+			      new X509TrustManager() {
+			        public X509Certificate[] getAcceptedIssuers() { 
+			          return new X509Certificate[0]; 
+			        }
+			        public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+			        public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+			    }};
+
+			    // Ignore differences between given hostname and certificate hostname
+			    HostnameVerifier hv = new HostnameVerifier() {
+			      public boolean verify(String hostname, SSLSession session) { return true; }
+			    };
+
+			    // Install the all-trusting trust manager
+			    try {
+			      SSLContext sc = SSLContext.getInstance("SSL");
+			      sc.init(null, trustAllCerts, new SecureRandom());
+			      HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+			      HttpsURLConnection.setDefaultHostnameVerifier(hv);
+			    } catch (Exception e) {}
+		}
+			
+	    
 	
 }

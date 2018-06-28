@@ -4,15 +4,22 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -26,7 +33,7 @@ import com.alee.laf.WebLookAndFeel;
 import com.github.lgooddatepicker.*;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 
-public class Baggui implements ActionListener{
+public class Baggui implements ActionListener,WindowListener, WindowFocusListener,WindowStateListener{
 
 	static JButton open = new JButton("Select Folder");
 	static JButton save = new JButton("Save as");
@@ -36,24 +43,25 @@ public class Baggui implements ActionListener{
 	static String[] profiles = {"No Profile", "DalClass", "Digital Records Accession Generic"};
 	static JComboBox<String> algorithmSelect = new JComboBox<String>(algorithms); 
 	static JComboBox<String> profileSelect = new JComboBox<String>(profiles);
-//	static JButton metaDataB = new JButton("Save metadata");
 	static JTextField saveField = new JTextField(22);// \
 	static JTextField openField = new JTextField(22);//  *was 17 
-//	static JTextField metaField = new JTextField(22);// /
+	static JPanel mainPanel;
 	static JPanel p;
+	static JPanel metaPanel;
+	static JScrollPane bottemPanel;
 	JFrame frame = new JFrame("DalClass Transfer Tool");
 	Profile profile;
 	Map<String, Component> customFields; 
 	final JFileChooser fc = new JFileChooser();
 	Baglady baglady=null;
 	boolean profilepicked;
-	
-	
+	boolean maximized;
+	boolean resized = false;
 	
 	 //constructor, adds action listeners
 	public Baggui(Baglady baglady){
 		
-		p=new JPanel(new GridBagLayout()) 
+		mainPanel=new JPanel(new GridBagLayout())
 		{
 	        @Override
 	        protected void paintComponent(Graphics grphcs) {
@@ -69,32 +77,33 @@ public class Baggui implements ActionListener{
 
 	        }
 		};
-		
+		metaPanel=new JPanel(new GridBagLayout());
+		bottemPanel=new JScrollPane();
 		open.addActionListener(this);
 		save.addActionListener(this);
 		start.addActionListener(this);
-	//	metaDataB.addActionListener(this);
 		profileSelect.addActionListener(this);
 		this.baglady=baglady;
 		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		algorithmSelect.setSelectedIndex(0);
 		algorithmSelect.addActionListener(this);
 		profilepicked=false;
+		frame.addWindowStateListener(this);
+		maximized=false;
 	}
 	
 	//creates and styles gui
 	public void createAndShowGUI() {
 		//Color slategrey = new Color(112,115,114);
 		Color dalgold =new Color(192,140,12);
+		p = new JPanel(new GridBagLayout());
 				
 		//so it's not hideous 
-		
 		WebLookAndFeel.install();
+		
 		//misc window setup
-		//JFrame frame = new JFrame("Dal Class Bagger Tool");  
 		SwingUtilities.updateComponentTreeUI(frame);	
-		frame.setResizable(false);
-		try {frame.setIconImage(ImageIO.read(new File(baglady.delimeter+"DalClass Bagger"+baglady.delimeter+"src"+baglady.delimeter+"dalFavIcon.ico")));} 
+		try {frame.setIconImage(ImageIO.read(this.getClass().getClassLoader().getResource("images/dalFavIcon.ico")));} 
 		catch (IOException e) {e.printStackTrace();}
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    
@@ -120,8 +129,6 @@ public class Baggui implements ActionListener{
 	    profileSelect.setForeground(Color.WHITE);
 	    algorithmSelect.setForeground(Color.white);
 	    saveField.setMinimumSize(new Dimension(22, 27));;
-	   // openField.setForeground(dalgold);
-	   // metaField.setForeground(dalgold);
 
 	    //configuring spacing
 	    GridBagConstraints c = new GridBagConstraints();
@@ -176,42 +183,83 @@ public class Baggui implements ActionListener{
 	    
 	    JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
 	    p.add(sep,c);
+	    
 	    //building window
-	    frame.getContentPane().add(p); 
+	    c.gridx=0;
+	    c.gridy=0;
+	    p.setOpaque(false);
+	    mainPanel.add(p,c);
+	    c.gridy=1;
+	    frame.getContentPane().add(mainPanel); 
 	    frame.setLocationRelativeTo(null);
 	    frame.pack();
 	    frame.setVisible(true);
 	}
 	
 	private void drawMetaFields() {
+		metaPanel = new JPanel(new GridBagLayout());
+		metaPanel.setOpaque(false);
+	
+		refresh();
+	
+		mainPanel.remove(bottemPanel);
 		GridBagConstraints c = new GridBagConstraints();
 		c.ipadx=2;
 		c.ipady=4;
-		c.insets=new Insets(4,4,4,4);
+		c.insets=new Insets(0,4,4,4);
 		c.gridx=0;
-		c.gridy=6;
+		c.gridy=0;
 		
 		for (Entry<String, Component> entry : customFields.entrySet()) 
 		{
 		    String key = entry.getKey();
 		    Component field =  entry.getValue();
 		    JLabel label = new JLabel(key+":");
-		    p.add(label,c);
+		    metaPanel.add(label,c);
 		    c.gridx++;
 		    
-		    p.add(field,c);
+		    metaPanel.add(field,c);
 		    c.gridx++;
 		    
-		   // c.gridy++;
-		    if (c.gridx%4 == 0) 
+		    if (c.gridx%2 == 0) 
 		   	{
 		    	c.gridy++;
 		    	c.gridx=0;
 		   	}		     
 		}
 		
-		 frame.pack();
-		 frame.setVisible(true);
+		bottemPanel=new JScrollPane(metaPanel);
+		bottemPanel.setVisible(true);
+		
+		if (!maximized && !resized) 
+		{
+			resized=true;
+			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth()+186,400));
+		}
+		else if (!maximized)
+			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth(),400));
+		else {
+			//bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth(),mainPanel.getHeight()-150));
+			//frame.setState(Frame.NORMAL);
+		}
+		
+		bottemPanel.getVerticalScrollBar().setUnitIncrement(16);
+		
+		metaPanel.setOpaque(false);
+		bottemPanel.setOpaque(false);
+
+		c = new GridBagConstraints();
+		c.gridy=1;
+		c.gridx=0;
+		mainPanel.add(bottemPanel,c);
+	//	mainPanel.revalidate();
+	//	mainPanel.repaint();
+		refresh();
+	    frame.getContentPane().add(mainPanel); 
+	
+	    if(!maximized)
+	    	frame.pack();
+		frame.setVisible(true);
 	}
 
     
@@ -225,7 +273,7 @@ public class Baggui implements ActionListener{
     			baglady.setInput(fc.getSelectedFile().toPath());
     			//files in fields, also defaults output to desktop with the same name
     			openField.setText(fc.getSelectedFile().toString());
-    			saveField.setText(System.getProperty("user.home")+baglady.delimeter+"Desktop"+baglady.delimeter+baglady.getInput().getFileName()+baglady.delimeter);
+    			saveField.setText(System.getProperty("user.home")+baglady.delimeter+"Desktop"+baglady.delimeter+baglady.getInput().getFileName()+"-bagged"+baglady.delimeter);
     		}
     	}
     	//for output, updates field as well
@@ -238,23 +286,7 @@ public class Baggui implements ActionListener{
     			baglady.setMetaoutput(Paths.get(baglady.getOutput().toString()+"-metadata.txt"));
     		}
     	}
-    	
-    	//for metadata.txt output, only accepts .txt 
-    	//will add .txt to file is not typed in
-  
-    	/* 	else if (e.getSource().equals(metaDataB)) {
-    		FileNameExtensionFilter filter = new FileNameExtensionFilter("text files", "txt", "text");
-    		fc.setFileFilter(filter);
-        	int returnVal = fc.showSaveDialog(metaDataB); 	
-        	if (returnVal == JFileChooser.APPROVE_OPTION)
-        	{
-        		baglady.setMetaoutput(fc.getSelectedFile().toPath());
-        		metaField.setText(fc.getSelectedFile().toString());
-        	}
-        	fc.setFileFilter(null);
-    	}	
-    	 */
-    	
+    	  	
     	//"bag it!" gets selected algorithm, as well as captures
     	//data if it was entered into the fields manually
     	else if (e.getSource().equals(start)){
@@ -294,44 +326,65 @@ public class Baggui implements ActionListener{
     		if (fields==1){
     			baglady.doeverything(zipped.isSelected());
     			if (baglady.getSuccess())
-    			{
-    				JOptionPane.showMessageDialog(null, "Bag Created Successfully");
-    			}
+    				{JOptionPane.showMessageDialog(null, "Bag Created Successfully");}
     			else
-    			{
-    				JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");
-    			}
+    				{JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");}
     		}
     		
-    		else if (fields == 2){
-    			JOptionPane.showMessageDialog(null, "Please make sure all fields filled");
-    		}
+    		else if (fields == 2)
+    			{JOptionPane.showMessageDialog(null, "Please make sure all fields filled");}
     		
     		else if (fields == 3){
     			baglady.doeverything(zipped.isSelected(), customFields);
-    			
     			if (baglady.getSuccess())
-    			{
-    				JOptionPane.showMessageDialog(null, "Bag Created Successfully");
-    			}
+    				{JOptionPane.showMessageDialog(null, "Bag Created Successfully");}
     			else
-    			{
-    				JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");
-    			}
+    				{JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");}
 
     		}
     			
-    		}    		
-    	
+    	}    		
     	
     	
     	else if (e.getSource().equals(profileSelect))
     	{
-    		profile=new Profile(profileSelect.getSelectedItem().toString());
-    		this.customFields=profile.getMetaFields();
-    		drawMetaFields();
-    		profilepicked=true;
+    		if (profileSelect.getSelectedIndex()==0)
+    			{
+    			mainPanel.remove(bottemPanel);
+    			refresh();	
+    			bottemPanel.setVisible(false);
+    			
+    			if (!maximized)
+    				frame.pack();
+    			
+    			resized=false;
+    			profilepicked=false;
+    			}
+    		else 
+    			{
+    			profile=new Profile(profileSelect.getSelectedIndex(), this);
+    			this.customFields=profile.getMetaFields();
+    			drawMetaFields();
+    			profilepicked=true;
+    			}
+    		    		
     	}
+    	
+    	else if (e.getSource().equals(customFields.get("Business Function")))
+    		{
+    			String businessFunc = ((JComboBox<String>) customFields.get("Business Function")).getSelectedItem().toString();
+    			String[] test = null;
+    			
+				try {test = profile.updateComboBox(businessFunc);}
+				catch (IOException e1) {e1.printStackTrace();}
+    			
+				((RequiredComboBox)customFields.get("DalClass Record Series")).removeAllItems();
+    			for (int i =0;i<test.length;i++)
+    				{
+    				((JComboBox<String>)customFields.get("DalClass Record Series")).addItem(test[i]);
+    				}
+    			((JComboBox<String>)customFields.get("DalClass Record Series")).setSelectedIndex(0);
+    		}
     	
     }
 
@@ -360,7 +413,6 @@ public class Baggui implements ActionListener{
 		}
 		else if (value.getClass().equals(field.getClass()))
 		{
-			System.out.print(((RequiredTextField) value).getText().toString());
 			if (((RequiredTextField) value).getText().toString().isEmpty())
 				return false;
 		} 
@@ -370,15 +422,84 @@ public class Baggui implements ActionListener{
 	private boolean isRequired(Component value) {
 		RequiredComboBox box =new RequiredComboBox();
 		RequiredTextField field= new RequiredTextField();
+		
 		if (value.getClass().equals(box.getClass())) 
-		{
 			return ((RequiredComboBox) value).isRequired();
-		}
 		else if (value.getClass().equals(field.getClass()))
-		{
 			return ((RequiredTextField) value).isRequired();
-		} 
+		
 		return false;
+	}
+
+	
+	private void refresh() {
+		metaPanel.revalidate();
+		bottemPanel.revalidate();
+		mainPanel.revalidate();
+		
+		metaPanel.repaint();
+		bottemPanel.repaint();
+		mainPanel.repaint();
+		
+	}
+	@Override
+	public void windowStateChanged(WindowEvent e) {
+		if ((e.getNewState() & frame.ICONIFIED) == frame.ICONIFIED)
+			maximized=false;
+		else if ((e.getNewState() & frame.MAXIMIZED_BOTH) == frame.MAXIMIZED_BOTH)
+			maximized=true;
+	}
+
+	@Override
+	public void windowGainedFocus(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowLostFocus(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowActivated(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosed(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent arg0) {
+		maximized=false;		
+	}
+
+	@Override
+	public void windowIconified(WindowEvent arg0) {
+		maximized=true;
+	}
+
+	@Override
+	public void windowOpened(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }
 
