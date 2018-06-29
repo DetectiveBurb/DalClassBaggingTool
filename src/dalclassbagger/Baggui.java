@@ -11,24 +11,19 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.text.JTextComponent;
 import com.alee.laf.WebLookAndFeel;
 import com.github.lgooddatepicker.*;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
@@ -210,6 +205,12 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		c.gridx=0;
 		c.gridy=0;
 		
+		int colnum;
+		if(maximized)
+			colnum=4;
+		else
+			colnum=2;
+		
 		for (Entry<String, Component> entry : customFields.entrySet()) 
 		{
 		    String key = entry.getKey();
@@ -221,7 +222,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		    metaPanel.add(field,c);
 		    c.gridx++;
 		    
-		    if (c.gridx%2 == 0) 
+		    if (c.gridx%colnum == 0) 
 		   	{
 		    	c.gridy++;
 		    	c.gridx=0;
@@ -238,10 +239,8 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		}
 		else if (!maximized)
 			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth(),400));
-		else {
-			//bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth(),mainPanel.getHeight()-150));
-			//frame.setState(Frame.NORMAL);
-		}
+		else
+			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth(),mainPanel.getHeight()-200));
 		
 		bottemPanel.getVerticalScrollBar().setUnitIncrement(16);
 		
@@ -252,8 +251,6 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		c.gridy=1;
 		c.gridx=0;
 		mainPanel.add(bottemPanel,c);
-	//	mainPanel.revalidate();
-	//	mainPanel.repaint();
 		refresh();
 	    frame.getContentPane().add(mainPanel); 
 	
@@ -323,26 +320,22 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     		//makes the bag with options enabled
     		int fields = fieldsFilled();
     		
-    		if (fields==1){
-    			baglady.doeverything(zipped.isSelected());
-    			if (baglady.getSuccess())
-    				{JOptionPane.showMessageDialog(null, "Bag Created Successfully");}
-    			else
-    				{JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");}
-    		}
+    		if (fields==1)
+    			JOptionPane.showMessageDialog(null, "Please Select a profile");
     		
     		else if (fields == 2)
-    			{JOptionPane.showMessageDialog(null, "Please make sure all fields filled");}
+    			JOptionPane.showMessageDialog(null, "Please make sure all fields are filled");
     		
     		else if (fields == 3){
     			baglady.doeverything(zipped.isSelected(), customFields);
     			if (baglady.getSuccess())
     				{JOptionPane.showMessageDialog(null, "Bag Created Successfully");}
     			else
-    				{JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");}
-
-    		}
-    			
+    			{
+    				JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");
+    				baglady.setSuccess(true);
+    			}
+    		}		
     	}    		
     	
     	
@@ -361,13 +354,12 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     			profilepicked=false;
     			}
     		else 
-    			{
+    		{
     			profile=new Profile(profileSelect.getSelectedIndex(), this);
     			this.customFields=profile.getMetaFields();
     			drawMetaFields();
     			profilepicked=true;
-    			}
-    		    		
+    		} 		    		
     	}
     	
     	else if (e.getSource().equals(customFields.get("Business Function")))
@@ -380,12 +372,11 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     			
 				((RequiredComboBox)customFields.get("DalClass Record Series")).removeAllItems();
     			for (int i =0;i<test.length;i++)
-    				{
+    			{
     				((JComboBox<String>)customFields.get("DalClass Record Series")).addItem(test[i]);
-    				}
+    			}
     			((JComboBox<String>)customFields.get("DalClass Record Series")).setSelectedIndex(0);
-    		}
-    	
+    		}	
     }
 
 	private int fieldsFilled() {
@@ -431,7 +422,6 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		return false;
 	}
 
-	
 	private void refresh() {
 		metaPanel.revalidate();
 		bottemPanel.revalidate();
@@ -442,6 +432,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		mainPanel.repaint();
 		
 	}
+	
 	@Override
 	public void windowStateChanged(WindowEvent e) {
 		if ((e.getNewState() & frame.ICONIFIED) == frame.ICONIFIED)
@@ -488,12 +479,13 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 
 	@Override
 	public void windowDeiconified(WindowEvent arg0) {
-		maximized=false;		
+		maximized=false;
 	}
 
 	@Override
 	public void windowIconified(WindowEvent arg0) {
 		maximized=true;
+		
 	}
 
 	@Override

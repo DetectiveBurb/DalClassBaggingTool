@@ -2,37 +2,22 @@ package dalclassbagger;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Scanner;
 import javax.net.ssl.HttpsURLConnection;
 import javax.swing.BorderFactory;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.border.Border;
-import org.json.HTTP;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
-
-import sun.net.www.http.HttpClient;
-
 
 import java.security.*;
 import java.security.cert.*;
