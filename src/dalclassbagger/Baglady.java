@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -218,7 +219,7 @@ public class Baglady {
 		catch (IOException e1) {e1.printStackTrace();}
 		
 		//get bag metadata (version, etc)
-		List x = bag.getMetadata().getAll();
+		List<SimpleImmutableEntry<String, String>> x = bag.getMetadata().getAll();
 		
 		//add data to string
 		for(Object item : x) {

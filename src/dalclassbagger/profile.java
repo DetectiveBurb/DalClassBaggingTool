@@ -3,15 +3,18 @@ package dalclassbagger;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.swing.BorderFactory;
+import javax.swing.ComboBoxModel;
 import javax.swing.border.Border;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,9 +29,10 @@ import javax.net.ssl.*;
 
 public class Profile{
 	
-	int selected;
+	String selected;
 	Baggui gui;
 	Map<String, Component> map;
+	String[] records;
 	
 	public Profile() {
 		map=new HashMap<String, Component>();
@@ -48,7 +52,7 @@ public class Profile{
 		}
 	}
 	
-	public Profile(int selected, Baggui baggui) {
+	public Profile(String selected, Baggui baggui) {
 		this.selected=selected;
 		map=new LinkedHashMap<String, Component>();
 		gui = baggui;
@@ -72,8 +76,10 @@ public class Profile{
 	public Map<String, Component> getMetaFields()
 	{
 		
-	switch(selected) {
-		case 1:
+	//switch(selected) {
+		//case 1:
+			
+		/*	
 		String[] functions = null;
 		try {functions = updateFunctions();} 
 		catch (IOException e) {e.printStackTrace();}
@@ -131,12 +137,60 @@ public class Profile{
 			((RequiredComboBox) map.get("Business Function")).addActionListener(gui);
 				
 			((RequiredTextField) map.get("Receiving Department")).setText("Dalhousie University Archives");
+			*/
+			String file = "profiles/"+selected+".json";
+			InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
+			JSONTokener tokener = new JSONTokener(in);
+			JSONObject json = new JSONObject(tokener);	
+			JSONArray jsons = (JSONArray) json.get("ordered");
+			Border border=BorderFactory.createLineBorder(Color.red);		
+			RequiredTextField textField = new RequiredTextField(); 
+			RequiredComboBox box = new RequiredComboBox();
+			DatePickerSettings dateSettings = new DatePickerSettings();
+			dateSettings.setFormatForDatesCommonEra(json.getString("dateformat"));
 			
-			break;
+			
+			for(int i=0;i<jsons.length();i++)
+			{
+				JSONObject curr = (JSONObject) jsons.get(i);
+				Iterator<String> keys = curr.keys();
+				String first = keys.next();
+				curr=(JSONObject) curr.get(first);
+				if (curr.getString("type").equals("text"))
+					map.put(first, new RequiredTextField(17));
+				else if (curr.getString("type").equals("date"))
+					map.put(first, new DatePicker(dateSettings.copySettings()));
+				else if (curr.getString("type").equals("list"))
+					{
+					JSONArray valueList = (JSONArray) curr.get("valueList");
+					String[] valueListarray = JArray2Array(valueList);
+					map.put(first, new RequiredComboBox(valueListarray));
+					}
+
+				if (curr.getBoolean("fieldRequired"))
+				{
+					if (map.get(first).getClass().equals(textField.getClass()))
+						{
+							((RequiredTextField) map.get(first)).setRequired(true);
+							((RequiredTextField) map.get(first)).setBorder(border);
+						}
+					else if (map.get(first).getClass().equals(box.getClass()))
+						{
+						((RequiredComboBox) map.get(first)).setRequired(true);			
+						((RequiredComboBox) map.get(first)).setBorder(border);
+						}		
+				}
+			if (first.equals("Business Function"))
+				((RequiredComboBox) map.get("Business Function")).addActionListener(gui);
+			else if (first.equals("DalCLASS Record Series"))				
+				records=JArray2Array(curr.getJSONArray("valueList"));
+			}
+			
+		//	break;
 		
-		case 2:
+	//	case 2:
 			
-			String[] recordsRetentionType= { "???",
+	/*		String[] recordsRetentionType= { "???",
                     "Permanent (Keep Forever)",
                     "Non-Permanent (Limited)",
 					"Not-Yet-Known "};
@@ -304,13 +358,21 @@ public class Profile{
 			map.put("Notes",new RequiredTextField(17));
 			map.put("Accession Bag Creator",new RequiredTextField(17));
 			break;
-		
-		}
+		*/
+	//	}
 		
 		return map;
 	}
 	
 	
+	private String[] JArray2Array(JSONArray valueList) {
+		String[] list = new String[valueList.length()];
+		for(int i=0; i<valueList.length();i++) 
+			list[i] = (String) valueList.get(i);
+
+		return list;
+	}
+
 	private String[] updateFunctions() throws IOException {
 		URL dalclass = null;
 		try {dalclass = new URL("https://util.library.dal.ca/dalclass/index.php?action=clientgettable&table=sections&client=Miles");} 
@@ -340,7 +402,7 @@ public class Profile{
 
 	public String[] updateComboBox(String series) throws IOException 
 	{		
-		URL dalclass = null;
+		/*URL dalclass = null;
 		
 		try {dalclass = new URL("https://util.library.dal.ca/dalclass/index.php?action=clientgettable&table=records&client=Miles");} 
 		catch (MalformedURLException e) {e.printStackTrace();}	
@@ -348,25 +410,27 @@ public class Profile{
 		HttpsURLConnection con = (HttpsURLConnection)dalclass.openConnection();
 		con.setRequestMethod("GET");
 		con.connect();
-		
+		*/
 		ArrayList<String> options=new ArrayList<String>();
 		
-		JSONTokener tokener = new JSONTokener(con.getInputStream());
+	/*	String file = "profiles/"+selected+".json";
+		InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
+		JSONTokener tokener = new JSONTokener(in);
 		JSONObject json = new JSONObject(tokener);	
-		JSONArray jsons = (JSONArray) json.get("data");
-	
-		for(int i=0;i<jsons.length();i++)
+		JSONArray jsons = (JSONArray) json.get("ordered");
+		json = (JSONObject) json.get("DalCLASS Record Series");
+		jsons= json.getJSONArray("valueList");
+	*/
+		
+		for(int i=0;i<records.length;i++)
 		{
-			JSONObject curr = (JSONObject) jsons.get(i);
-			String num=(String) curr.get("series_number");
-			String title=(String) curr.get("series_title");
-			String s = num+" "+title;		
+			String curr = records[i];
+			String num=records[i].substring(0,2);
 
 			if (num.substring(0,2).equals(series.substring(0, 2)))
-				{options.add(s);}
+				{options.add(curr);}
 		}
 	
-		con.disconnect();
 		
 		return options.toArray(new String[options.size()]);
 	}

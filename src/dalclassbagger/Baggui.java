@@ -18,10 +18,16 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import com.alee.laf.WebLookAndFeel;
@@ -35,11 +41,11 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	static JButton start = new JButton("Bag it!");
 	static JCheckBox zipped = new JCheckBox("zip the bag");
 	static String[] algorithms = {"MD5","SHA-1","SHA224","SHA256","SHA512"};
-	static String[] profiles = {"No Profile", "DalClass", "Digital Records Accession Generic"};
+	static String[] profiles;
 	static JComboBox<String> algorithmSelect = new JComboBox<String>(algorithms); 
-	static JComboBox<String> profileSelect = new JComboBox<String>(profiles);
-	static JTextField saveField = new JTextField(22);// \
-	static JTextField openField = new JTextField(22);//  *was 17 
+	static JComboBox<String> profileSelect;
+	static JTextField saveField = new JTextField(22);
+	static JTextField openField = new JTextField(22); 
 	static JPanel mainPanel;
 	static JPanel p;
 	static JPanel metaPanel;
@@ -72,6 +78,9 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 
 	        }
 		};
+		
+		profiles=getProfiles();
+		profileSelect=new JComboBox<String>(profiles);
 		metaPanel=new JPanel(new GridBagLayout());
 		bottemPanel=new JScrollPane();
 		open.addActionListener(this);
@@ -87,6 +96,18 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		maximized=false;
 	}
 	
+	private String[] getProfiles() {
+		
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("No Profile");
+		File folder = new File("src/profiles");
+		 for (final File fileEntry : folder.listFiles())		        
+			 list.add(fileEntry.getName().substring(0, fileEntry.getName().length()-5));
+		String[] returnable = new String[list.size()];
+		returnable=list.toArray(returnable);
+		return returnable;
+	}
+
 	//creates and styles gui
 	public void createAndShowGUI() {
 		//Color slategrey = new Color(112,115,114);
@@ -235,10 +256,10 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		if (!maximized && !resized) 
 		{
 			resized=true;
-			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth()+186,400));
+			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth()+258,435));
 		}
 		else if (!maximized)
-			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth(),400));
+			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth(),435));
 		else
 			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth(),mainPanel.getHeight()-200));
 		
@@ -355,7 +376,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     			}
     		else 
     		{
-    			profile=new Profile(profileSelect.getSelectedIndex(), this);
+    			profile=new Profile((String)profileSelect.getSelectedItem(), this);
     			this.customFields=profile.getMetaFields();
     			drawMetaFields();
     			profilepicked=true;
