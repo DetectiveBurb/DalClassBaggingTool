@@ -1,0 +1,559 @@
+{
+	"dateformat":"MM/dd/yyyy",
+    "ordered": [
+        {
+            "Accession/Transfer Number": {
+		"type": "text",
+                "fieldRequired": false
+            }
+        },
+        {
+            "Transferring Institution/Code": {
+		"type": "text",               
+		"fieldRequired": false
+            }
+        },
+        {
+            "Creating Institution/Code": {
+		"type": "text",                
+		"fieldRequired": false
+            }
+        },
+        {
+            "Creating Institution Subdivision": {
+		"type": "text",
+   		"fieldRequired": false
+            }
+        },
+        {
+            "Creating Institution Address": {
+                "fieldRequired": false,
+		"type": "text"		
+            }
+        },
+        {
+            "transferring Employee": {
+                "fieldRequired": false,
+		"type": "text"				
+            }
+        },
+        {
+            "Receiving Institution": {
+                "fieldRequired": false,
+                "defaultValue": "Enter your institution's name here",
+		"type": "text"
+            }
+        },
+        {
+            "Receiving Institution Address": {
+                "fieldRequired": false,
+                "defaultValue": "Enter your institution's address here",
+		"type": "text"
+            }
+        },
+        {
+            "Receiving Institution Authority": {
+                "fieldRequired": false,
+                "defaultValue": "Enter your institution's authority and contact here",
+		"type": "text"
+            }
+        },
+        {
+            "Receiving Employee": {
+                "fieldRequired": false,
+		"type": "text"
+            }
+        },
+        {
+            "Records Series Number": {
+                "fieldRequired": false,
+		"type": "text"
+            }
+        },
+        {
+            "Records Series Title": {
+                "fieldRequired": false,
+		"type": "text"
+            }
+        },
+        {
+            "Records Retention Type": {
+                "fieldRequired": false,
+		"type": "list",
+                "defaultValue": "???",
+                "valueList": [
+                    "???",
+                    "Permanent (Keep Forever)",
+                    "Non-Permanent (Limited)",
+                    "Not-Yet-Known "
+                ]
+            }
+        },
+        {
+            "Records Disposition Number/Code": {
+                "fieldRequired": false,
+		"type": "text"
+            }
+        },
+        {
+            "Records Title/Description": {
+                "fieldRequired": false,
+		"type": "text"
+            }
+        },
+        {
+            "Records Creation Start Date": {
+                "fieldRequired": false,
+		"type": "date"
+            }
+        },
+        {
+            "Records Creation End Date": {
+                "fieldRequired": false,
+		"type": "date"
+            }
+        },
+        {
+            "Records Hashed Before Transfer?": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+		"type": "list",
+                "valueList": [
+                    "???",
+                    "YES",
+                    "NO"
+                ]
+            }
+        },
+        {
+            "Hash Signature Type": {
+                "fieldRequired": false,
+		"type": "list",
+                "defaultValue": "???",
+                "valueList": [
+                    "???",
+                    "MD5",
+                    "SHA1",
+                    "SHA224",
+                    "SHA256",
+                    "SHA-512",
+                    "SHA-384",
+                    "SHA-512",
+                    "SHA3-224",
+                    "SHA3-256",
+                    "SHA3-384",
+                    "SHA3-512"
+                ]
+            }
+        },
+        {
+            "Records Medium/Carrier #1": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "CD",
+                    "DVD",
+                    "Blu-Ray",
+                    "HDD/Hard-Drive",
+                    "USB: Flash/Thumb-Drive",
+                    "Floppy: 3.5in",
+                    "Floppy: 5.25in",
+                    "Floppy: 8in",
+                    "Zip Disk",
+                    "Jazz Drive",
+                    "Tape/Disk Cartridge",
+                    "Memory Card (SD/HC/XC/UHS/MS PRO/PRO Duo/Compact Flash/etc.)",
+                    "Magneto-Optical Disc (1990s)",
+                    "Mobile Device (Phone/Tablet/etc.)",
+                    "Computer",
+                    "Folder-on-Computer",
+                    "Email/Attachment",
+                    "Content Systems (RMS/DMS/RDMS/CMS Repository)",
+                    "Network Storage (NAS/SAN/FTP/SFTP)",
+                    "Cloud Storage",
+                    "Other(Describe in notes)"
+                ]
+            }
+        },
+        {
+            "How Many Media Received? #1 (e.g. 3)": {
+                "fieldRequired": false,
+		"type": "text"
+            }
+        },
+        {
+            "Records Medium/Carrier #2": {
+                "fieldRequired": false,
+		"type": "list",
+                "defaultValue": "???",
+                "valueList": [
+                    "???",
+                    "CD",
+                    "DVD",
+                    "Blu-Ray",
+                    "HDD/Hard-Drive",
+                    "USB: Flash/Thumb-Drive",
+                    "Floppy: 3.5in",
+                    "Floppy: 5.25in",
+                    "Floppy: 8in",
+                    "Zip Disk",
+                    "Jazz Drive",
+                    "Tape/Disk Cartridge",
+                    "Memory Card (SD/HC/XC/UHS/MS PRO/PRO Duo/Compact Flash/etc.)",
+                    "Magneto-Optical Disc (1990s)",
+                    "Mobile Device (Phone/Tablet/etc.)",
+                    "Computer",
+                    "Folder-on-Computer",
+                    "Email/Attachment",
+                    "Content Systems (RMS/DMS/RDMS/CMS Repository)",
+                    "Network Storage (NAS/SAN/FTP/SFTP)",
+                    "Cloud Storage",
+                    "Other(Describe in notes)"
+                ]
+            }
+        },
+        {
+            "How Many Media Received? #2 (e.g. 3)": {
+                "fieldRequired": false,
+		"type": "text"
+            }
+        },
+        {
+            "Records Medium/Carrier #3": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+		"type": "list",
+                "valueList": [
+                    "???",
+                    "CD",
+                    "DVD",
+                    "Blu-Ray",
+                    "HDD/Hard-Drive",
+                    "USB: Flash/Thumb-Drive",
+                    "Floppy: 3.5in",
+                    "Floppy: 5.25in",
+                    "Floppy: 8in",
+                    "Zip Disk",
+                    "Jazz Drive",
+                    "Tape/Disk Cartridge",
+                    "Memory Card (SD/HC/XC/UHS/MS PRO/PRO Duo/Compact Flash/etc.)",
+                    "Magneto-Optical Disc (1990s)",
+                    "Mobile Device (Phone/Tablet/etc.)",
+                    "Computer",
+                    "Folder-on-Computer",
+                    "Email/Attachment",
+                    "Content Systems (RMS/DMS/RDMS/CMS Repository)",
+                    "Network Storage (NAS/SAN/FTP/SFTP)",
+                    "Cloud Storage",
+                    "Other(Describe in notes)"
+                ]
+            }
+        },
+        {
+            "How Many Media Received? #3 (e.g. 3)": {
+                "fieldRequired": false,
+		"type": "text"
+            }
+        },
+        {
+            "Records Medium/Carrier #4": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+		"type": "list",
+                "valueList": [
+                    "???",
+                    "CD",
+                    "DVD",
+                    "Blu-Ray",
+                    "HDD/Hard-Drive",
+                    "USB: Flash/Thumb-Drive",
+                    "Floppy: 3.5in",
+                    "Floppy: 5.25in",
+                    "Floppy: 8in",
+                    "Zip Disk",
+                    "Jazz Drive",
+                    "Tape/Disk Cartridge",
+                    "Memory Card (SD/HC/XC/UHS/MS PRO/PRO Duo/Compact Flash/etc.)",
+                    "Magneto-Optical Disc (1990s)",
+                    "Mobile Device (Phone/Tablet/etc.)",
+                    "Computer",
+                    "Folder-on-Computer",
+                    "Email/Attachment",
+                    "Content Systems (RMS/DMS/RDMS/CMS Repository)",
+                    "Network Storage (NAS/SAN/FTP/SFTP)",
+                    "Cloud Storage",
+                    "Other(Describe in notes)"
+                ]
+            }
+        },
+        {
+            "How Many Media Received? #4 (e.g. 3)": {
+                "fieldRequired": false,
+				"type": "text"		
+            }
+        },
+        {
+            "Records Medium/Carrier #5": {
+                "fieldRequired": false,
+				"type": "list",
+                "defaultValue": "???",
+                "valueList": [
+                    "???",
+                    "CD",
+                    "DVD",
+                    "Blu-Ray",
+                    "HDD/Hard-Drive",
+                    "USB: Flash/Thumb-Drive",
+                    "Floppy: 3.5in",
+                    "Floppy: 5.25in",
+                    "Floppy: 8in",
+                    "Zip Disk",
+                    "Jazz Drive",
+                    "Tape/Disk Cartridge",
+                    "Memory Card (SD/HC/XC/UHS/MS PRO/PRO Duo/Compact Flash/etc.)",
+                    "Magneto-Optical Disc (1990s)",
+                    "Mobile Device (Phone/Tablet/etc.)",
+                    "Computer",
+                    "Folder-on-Computer",
+                    "Email/Attachment",
+                    "Content Systems (RMS/DMS/RDMS/CMS Repository)",
+                    "Network Storage (NAS/SAN/FTP/SFTP)",
+                    "Cloud Storage",
+                    "Other(Describe in notes)"
+                ]
+            }
+        },
+        {
+            "How Many Media Received? #5 (e.g. 3)": {
+                "fieldRequired": false,
+				"type": "text"
+            }
+        },
+        {
+            "Transfer Media Kept?": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "YES",
+                    "NO",
+                    "Not-Yet-Known"
+                ]
+            }
+        },
+        {
+            "Media Location (if media kept)": {
+                "fieldRequired": false,
+				"type": "text"
+            }
+        },
+        {
+            "Records Received Date ": {
+                "fieldRequired": false,
+				"type": "date"
+            }
+        },
+        {
+            "Mailing/Tracking Reference (if available. e.g. USPS tracking#)": {
+                "fieldRequired": false,
+				"type": "text"
+            }
+        },
+        {
+            "Mailing Method (if mailed. e.g. USPS)": {
+                "fieldRequired": false,
+				"type": "text"
+            }
+        },
+        {
+            "Digital Originality": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "Original (Born Digital)",
+                    "Original Surrogate (Digitized/Migrated & Physical/Original Destroyed)",
+                    "Surrogate (Digitized/Migrated & Physical/Original Kept)",
+                    "Not-Yet-Known"
+                ]
+            }
+        },
+        {
+            "Physical Record Location (if digitized or Kept)": {
+                "fieldRequired": false,
+				"type": "text"
+            }
+        },
+        {
+            "Classification (for Access)": {
+                "fieldRequired": false,
+				"type": "list",
+                "defaultValue": "???",
+                "valueList": [
+                    "???",
+                    "Open/Public",
+                    "Open/Redacted",
+                    "Semi-Confidential",
+                    "Confidential/Sensitive",
+                    "Classified/Top-Secret",
+                    "Not-Yet-Known"
+                ]
+            }
+        },
+        {
+            "Classification (Value for Priority Actions)": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "Vital (Birth/Death/Marriage/Land/Rights)",
+                    "Critical (Essential or Indispensible for Business)",
+                    "High Value (Re-Appraised or Perceived as)",
+                    "Not-Yet-Known"
+                ]
+            }
+        },
+        {
+            "Classification (Appraisal - Value for Agency)": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "Information on the set-up and origin of the agency",
+                    "Document important decision-making processes",
+                    "Document functions and accomplishment of agency",
+                    "Document key operations of agency",
+                    "Document key decision making process of top and mid level management",
+                    "Not-Yet-Known"
+                ]
+            }
+        },
+        {
+            "Classification (Appraisal - Value for Residents/citizen)": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "Document rights and obligations of the Government",
+                    "Documents rights of residents/citizens",
+                    "Not-Yet-Known"
+                ]
+            }
+        },
+        {
+            "Classification (Appraisal - Value for Nation/State/Locality)": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "Information on Federal/State/Local government sovereignty",
+                    "Information on Federal/State/Local government security",
+                    "Information on relations with other Federal/State/Local government",
+                    "Information on locality/nation building  efforts",
+                    "Not-Yet-Known"
+                ]
+            }
+        },
+        {
+            "Classification (Appraisal - General Value)": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "Intrinsic value",
+                    "Future research",
+                    "Not-Yet-Known"
+                ]
+            }
+        },
+        {
+            "Digital Content Structure": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "Compound (Multiple Types)",
+                    "Word Processing",
+                    "Plain Text",
+                    "Text With Markup",
+                    "Spreadsheet",
+                    "Presentation",
+                    "Database",
+                    "AUDIO",
+                    "Audio: Mono",
+                    "Audio: Stereo",
+                    "VIDEO",
+                    "Video: High Quality/Professional",
+                    "Video: Medium Quality/Amateur",
+                    "Video: Animation/Interactive",
+                    "IMAGE",
+                    "Image: Raster (for Tiff,PNG,Jpeg,jpeg2000,etc.)",
+                    "Image: Vector/CAD ",
+                    "Image: Raw/Native ",
+                    "Image: Geospatial Raster ",
+                    "Image: Geospatial Vector ",
+                    "Email",
+                    "Web Content: Site/Page/SocialMedia/Blog/etc.",
+                    "Software: Game/Application/Virtual Machine/Code/etc.",
+                    "Disk Image/Forensic Image",
+                    "Archive: Zip/Tar/Arc/Warc/SIRF/VEO/etc.",
+                    "Encrypted (Key-Available/Accessible-Content)",
+                    "Encrypted (No-Key/Inaccessible-Content))",
+                    "Not-Yet-Known"
+                ]
+            }
+        },
+        {
+            "Digital Format Openness": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "Open/Standard",
+                    "Ubiquitous/DeFacto",
+                    "Proprietary",
+                    "Mixed",
+                    "Not-Yet-Known"
+                ]
+            }
+        },
+        {
+            "OAIS Digital Curation Lifecycle": {
+                "fieldRequired": false,
+                "defaultValue": "???",
+				"type": "list",
+                "valueList": [
+                    "???",
+                    "SIP",
+                    "AIP",
+                    "AIPe (encapsulated AIP)",
+                    "DIP"
+                ]
+            }
+        },
+        {
+            "Notes": {
+                "fieldRequired": false,
+				"type": "text"
+            }
+        },
+        {
+            "Accession Bag Creator (update if different)": {
+                "fieldRequired": false,
+                "defaultValue": "Enter your name here",
+				"type": "text"
+            }
+        }
+    ]
+}

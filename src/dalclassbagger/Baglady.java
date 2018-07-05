@@ -1,5 +1,6 @@
 package dalclassbagger;
 
+import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,14 +8,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.github.lgooddatepicker.components.DatePicker;
+
 import gov.loc.repository.bagit.creator.BagCreator;
 import gov.loc.repository.bagit.domain.Bag;
+import gov.loc.repository.bagit.domain.Metadata;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import gov.loc.repository.bagit.writer.BagWriter;
 
@@ -27,7 +34,7 @@ public class Baglady {
 	StandardSupportedAlgorithms alg = StandardSupportedAlgorithms.MD5;
 	Boolean success=true;
 	String delimeter ="";
-	Profile profile;
+	Metadata metadata;
 	
 	//constructors
 	public Baglady() {
@@ -39,6 +46,9 @@ public class Baglady {
 			delimeter = "/";	
 		
 		metaoutput = null;
+		
+		this.bag = new Bag();
+		metadata=new Metadata();
 	}
 	
 	public Baglady(Path in, Path out,Path metaoutput,StandardSupportedAlgorithms alg)
@@ -52,6 +62,9 @@ public class Baglady {
 			delimeter = "\\";
 		else
 			delimeter = "/";
+		this.bag = new Bag();
+		metadata=new Metadata();
+
 	}
 	
 	//getters and setters
@@ -71,14 +84,7 @@ public class Baglady {
 		this.output = output;
 	}
 
-	public Profile getProfile() {
-		return profile;
-	}
-
-	public void setProfile(String name) {
-		this.profile = new Profile(name);
-	}
-
+	
 	public Bag getBag() {
 		return bag;
 	}
@@ -144,9 +150,11 @@ public class Baglady {
 	    	 Files.walk(Paths.get(input.toString()+"\\data"))
 	         .forEach( s ->{
 	        	 try
-	             {   Path d = input.resolve( src.relativize(s) );
+	             {   
+	        		 Path d = input.resolve( src.relativize(s) );
 	                 if( Files.isDirectory( s ) )
-	                 {   if( !Files.exists( d ) )
+	                 {   
+	                	 if( !Files.exists( d ) )
 	                         Files.createDirectory( d );
 	                     return;
 	                 }
@@ -186,7 +194,11 @@ public class Baglady {
 	//just a wrapper for the api functions
 	public void makeBag() throws NoSuchAlgorithmException, IOException
 	{
-		bag=BagCreator.bagInPlace(input, Arrays.asList(alg), false);
+		if(metadata.isEmpty())
+			bag=BagCreator.bagInPlace(input, Arrays.asList(alg), false);
+		else
+			bag=BagCreator.bagInPlace(input, Arrays.asList(alg), false, metadata);
+
 	}
 	
 	public void writeBag() throws NoSuchAlgorithmException, IOException
@@ -201,11 +213,13 @@ public class Baglady {
 		//get all files in the bag as an array
 		Path[] payload = Files.walk(bag.getRootDir()).filter(Files::isRegularFile).toArray(Path[]::new);
 		String text ="";
+		
 		//make the file
 		try {metaoutput.toFile().createNewFile();}
 		catch (IOException e1) {e1.printStackTrace();}
+		
 		//get bag metadata (version, etc)
-		List x = bag.getMetadata().getAll();
+		List<SimpleImmutableEntry<String, String>> x = bag.getMetadata().getAll();
 		
 		//add data to string
 		for(Object item : x) {
@@ -213,7 +227,6 @@ public class Baglady {
 		}
 		 
 		for (Path item : payload) {
-			
 			text+=item.toString()+"\t"+sdf.format(item.toFile().lastModified())+"\t"+item.toFile().length()+"B \r\n";
 		}
 		
@@ -224,6 +237,22 @@ public class Baglady {
 }
 	
 	//what happens when start is pushed, creates bag and cleans up after it.
+	public void doeverything(boolean zip, Map<String, Component> customFields)
+	{
+		try {
+			makeBagInfo(customFields);
+			makeBag();
+			writeBag();
+			if (zip)
+				pack();
+			if (metaoutput != null)
+				makeMetaData();
+			cleanFolder(zip);
+		} 
+		catch (NoSuchAlgorithmException e) {e.printStackTrace(); this.success=false;} 
+		catch (IOException e) {e.printStackTrace(); this.success=false;}
+	}
+	
 	public void doeverything(boolean zip)
 	{
 		try {
@@ -231,12 +260,39 @@ public class Baglady {
 			writeBag();
 			if (zip)
 				pack();
-			if (metaoutput !=null)
+			if (metaoutput != null)
 				makeMetaData();
 			cleanFolder(zip);
 		} 
 		catch (NoSuchAlgorithmException e) {e.printStackTrace(); this.success=false;} 
 		catch (IOException e) {e.printStackTrace(); this.success=false;}
+	}
+
+	private void makeBagInfo(Map<String, Component> customFields) {
+		
+		for (Entry<String, Component> entry : customFields.entrySet()) 
+		{
+			this.metadata.add(entry.getKey(), getFilled(entry.getValue()));
+		}
+	}
+	
+	private String getFilled(Component value) {
+		RequiredComboBox box =new RequiredComboBox();
+		RequiredTextField field= new RequiredTextField();
+		DatePicker datepicker = new DatePicker();
+		if (value.getClass().equals(box.getClass())) 
+		{
+			return ((RequiredComboBox) value).getSelectedItem().toString();
+		}
+		else if (value.getClass().equals(field.getClass()))
+		{
+			return ((RequiredTextField) value).getText().toString();
+		} 
+		else if (value.getClass().equals(datepicker.getClass()))
+		{
+			return ((DatePicker)value).getDateStringOrEmptyString();
+		}
+		return "";
 	}
 
 }
