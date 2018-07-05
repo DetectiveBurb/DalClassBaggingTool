@@ -1,107 +1,163 @@
 package dalclassbagger;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import com.alee.laf.WebLookAndFeel;
-
+import com.github.lgooddatepicker.*;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 
-public class Baggui implements ActionListener{
+public class Baggui implements ActionListener,WindowListener, WindowFocusListener,WindowStateListener{
 
-	 static JButton open = new JButton("Select Folder");
-	 static JButton save = new JButton("Save as");
-	 static JButton start = new JButton("Bag!");
-	 static JCheckBox zipped = new JCheckBox("zip the bag");
-	 static String[] algorithms = {"MD5","SHA-1","SHA224","SHA256","SHA512"};
-	 static String[] profiles = {"No Profile", "Hello", "Out", "Of","Time"};
-	 static JComboBox<String> algorithmSelect = new JComboBox<String>(algorithms); 
-	 static JComboBox<String> profileSelect = new JComboBox<String>(profiles);
-	 static JButton metaDataB = new JButton("Save Meta Data");
-	 static JTextField saveField = new JTextField(17);
-	 static JTextField openField = new JTextField(17);
-	 static JTextField metaField = new JTextField(17);
-
-	 
-	 
-	 final JFileChooser fc = new JFileChooser();
-	 Baglady baglady=null;
+	static JButton open = new JButton("Select Folder");
+	static JButton save = new JButton("Save as");
+	static JButton start = new JButton("Bag it!");
+	static JCheckBox zipped = new JCheckBox("zip the bag");
+	static String[] algorithms = {"MD5","SHA-1","SHA224","SHA256","SHA512"};
+	static String[] profiles;
+	static JComboBox<String> algorithmSelect = new JComboBox<String>(algorithms); 
+	static JComboBox<String> profileSelect;
+	static JTextField saveField = new JTextField(22);
+	static JTextField openField = new JTextField(22); 
+	static JPanel mainPanel;
+	static JPanel p;
+	static JPanel metaPanel;
+	static JScrollPane bottemPanel;
+	JFrame frame = new JFrame("DalClass Transfer Tool");
+	Profile profile;
+	Map<String, Component> customFields; 
+	final JFileChooser fc = new JFileChooser();
+	Baglady baglady=null;
+	boolean profilepicked;
+	boolean maximized;
+	boolean resized = false;
 	
 	 //constructor, adds action listeners
 	public Baggui(Baglady baglady){
+		
+		mainPanel=new JPanel(new GridBagLayout())
+		{
+	        @Override
+	        protected void paintComponent(Graphics grphcs) {
+	            super.paintComponent(grphcs);
+	            Graphics2D g2d = (Graphics2D) grphcs;
+	            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+	                    RenderingHints.VALUE_ANTIALIAS_ON);
+	            GradientPaint gp = new GradientPaint(0, 0,
+	            		Color.WHITE, getWidth(), 0,
+	            		new Color(112,115,114).darker().darker());
+	            g2d.setPaint(gp);
+	            g2d.fillRect(0, 0, getWidth(), getHeight()); 
+
+	        }
+		};
+		
+		profiles=getProfiles();
+		profileSelect=new JComboBox<String>(profiles);
+		metaPanel=new JPanel(new GridBagLayout());
+		bottemPanel=new JScrollPane();
 		open.addActionListener(this);
 		save.addActionListener(this);
 		start.addActionListener(this);
-		metaDataB.addActionListener(this);
 		profileSelect.addActionListener(this);
 		this.baglady=baglady;
 		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		algorithmSelect.setSelectedIndex(0);
 		algorithmSelect.addActionListener(this);
+		profilepicked=false;
+		frame.addWindowStateListener(this);
+		maximized=false;
 	}
 	
+	private String[] getProfiles() {
+		
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("No Profile");
+		File folder = new File("src/profiles");
+		 for (final File fileEntry : folder.listFiles())		        
+			 list.add(fileEntry.getName().substring(0, fileEntry.getName().length()-5));
+		String[] returnable = new String[list.size()];
+		returnable=list.toArray(returnable);
+		return returnable;
+	}
+
 	//creates and styles gui
 	public void createAndShowGUI() {
 		//Color slategrey = new Color(112,115,114);
 		Color dalgold =new Color(192,140,12);
-		
-		JPanel p = new JPanel(new GridBagLayout());	
-		
+		p = new JPanel(new GridBagLayout());
+				
 		//so it's not hideous 
 		WebLookAndFeel.install();
 		
 		//misc window setup
-		JFrame frame = new JFrame("Dal Class Bagger Tool");  
 		SwingUtilities.updateComponentTreeUI(frame);	
-		frame.setResizable(false);
-		try {frame.setIconImage(ImageIO.read(new File("C:\\\\Users\\\\Student\\\\Pictures\\\\Dalfavicon.png")));} 
+		try {frame.setIconImage(ImageIO.read(this.getClass().getClassLoader().getResource("images/dalFavIcon.ico")));} 
 		catch (IOException e) {e.printStackTrace();}
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    
+	    Font f = new Font("serif", Font.PLAIN, 16);
+	    
 	    //coloring buttons
-	    p.setBackground(new Color(255,255,255));
-	    open.setBackground(Color.WHITE);
-	    save.setBackground(Color.WHITE);
-	    metaDataB.setBackground(Color.WHITE);
+	    p.setBackground(Color.WHITE);
+	    open.setBackground(dalgold);
+	    save.setBackground(dalgold);
 	    zipped.setBackground(Color.WHITE);
-	    start.setBackground(Color.WHITE);
-	    profileSelect.setBackground(Color.WHITE);
-	    algorithmSelect.setBackground(Color.WHITE); 
+	    zipped.setOpaque(false);
+	    start.setBackground(dalgold);
+	    profileSelect.setBackground(dalgold);
+	    algorithmSelect.setBackground(dalgold); 
 	   
 	    
+	    
 	    //coloring text
-	    open.setForeground(dalgold);
-	    save.setForeground(dalgold);
-	    metaDataB.setForeground(dalgold);
+	    open.setForeground(Color.WHITE);
+	    save.setForeground(Color.WHITE);
 	    zipped.setForeground(dalgold);
-	    start.setForeground(dalgold);
-	    profileSelect.setForeground(dalgold);
-	    algorithmSelect.setForeground(dalgold);
-	    saveField.setForeground(dalgold);
-	    openField.setForeground(dalgold);
-	    metaField.setForeground(dalgold);
+	    start.setForeground(Color.WHITE);
+	    profileSelect.setForeground(Color.WHITE);
+	    algorithmSelect.setForeground(Color.white);
+	    saveField.setMinimumSize(new Dimension(22, 27));;
 
 	    //configuring spacing
 	    GridBagConstraints c = new GridBagConstraints();
-	    c.ipadx=4;
-	    c.ipady=4;
-	    c.insets=new Insets(4,12,4,15);
-	    open.setPreferredSize(new Dimension(120,35));
-	    save.setPreferredSize(new Dimension(120,35));
+	    c.ipadx=3;
+	    c.ipady=3;
+	    c.insets=new Insets(3,11,3,14);
+	    open.setPreferredSize(new Dimension(120,27));
+	    save.setPreferredSize(new Dimension(120,27));
 	    profileSelect.setPreferredSize(new Dimension(120,22));
-	    metaDataB.setPreferredSize(new Dimension(120,35));
 	    algorithmSelect.setPreferredSize(new Dimension(120,22));
+	    
+	    saveField.setFont(f);
+	    openField.setFont(f);
 	    
 	    //positioning components
 	    c.gridx=0;
@@ -121,33 +177,109 @@ public class Baggui implements ActionListener{
 	    p.add(save,c);
 	    c.gridx=1;
 	    p.add(saveField,c);
-	    
+	        
 	    c.gridx=0;
 	    c.gridy=3;
-	    p.add(metaDataB,c);
-	    c.gridx=1;
-	    p.add(metaField,c);
-	    
-	    c.gridx=0;
-	    c.gridy=4;
 	    p.add(algorithmSelect,c);
 	    
 	    c.gridx=0;
-	    c.gridy=5;
+	    c.gridy=4;
 	    p.add(zipped,c);
 	    
-	    c.gridy=5;
+	    c.gridy=4;
 	    c.gridx=4;
 	    p.add(start,c);
 	    
+	    c.gridx=0;
+	    c.gridy=5;
+	    c.weightx=0.0;
+	    c.fill=GridBagConstraints.HORIZONTAL;
+	    c.gridwidth=6;
+	    
+	    
+	    JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+	    p.add(sep,c);
+	    
 	    //building window
-	    frame.getContentPane().add(p); 
+	    c.gridx=0;
+	    c.gridy=0;
+	    p.setOpaque(false);
+	    mainPanel.add(p,c);
+	    c.gridy=1;
+	    frame.getContentPane().add(mainPanel); 
 	    frame.setLocationRelativeTo(null);
 	    frame.pack();
 	    frame.setVisible(true);
 	}
 	
+	private void drawMetaFields() {
+		metaPanel = new JPanel(new GridBagLayout());
+		metaPanel.setOpaque(false);
 	
+		refresh();
+	
+		mainPanel.remove(bottemPanel);
+		GridBagConstraints c = new GridBagConstraints();
+		c.ipadx=2;
+		c.ipady=4;
+		c.insets=new Insets(0,4,4,4);
+		c.gridx=0;
+		c.gridy=0;
+		
+		int colnum;
+		if(maximized)
+			colnum=4;
+		else
+			colnum=2;
+		
+		for (Entry<String, Component> entry : customFields.entrySet()) 
+		{
+		    String key = entry.getKey();
+		    Component field =  entry.getValue();
+		    JLabel label = new JLabel(key+":");
+		    metaPanel.add(label,c);
+		    c.gridx++;
+		    
+		    metaPanel.add(field,c);
+		    c.gridx++;
+		    
+		    if (c.gridx%colnum == 0) 
+		   	{
+		    	c.gridy++;
+		    	c.gridx=0;
+		   	}		     
+		}
+		
+		bottemPanel=new JScrollPane(metaPanel);
+		bottemPanel.setVisible(true);
+		
+		if (!maximized && !resized) 
+		{
+			resized=true;
+			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth()+258,435));
+		}
+		else if (!maximized)
+			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth(),435));
+		else
+			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth(),mainPanel.getHeight()-200));
+		
+		bottemPanel.getVerticalScrollBar().setUnitIncrement(16);
+		
+		metaPanel.setOpaque(false);
+		bottemPanel.setOpaque(false);
+
+		c = new GridBagConstraints();
+		c.gridy=1;
+		c.gridx=0;
+		mainPanel.add(bottemPanel,c);
+		refresh();
+	    frame.getContentPane().add(mainPanel); 
+	
+	    if(!maximized)
+	    	frame.pack();
+		frame.setVisible(true);
+	}
+
     
 	//event listeners 
     public void actionPerformed(ActionEvent e) {
@@ -159,7 +291,7 @@ public class Baggui implements ActionListener{
     			baglady.setInput(fc.getSelectedFile().toPath());
     			//files in fields, also defaults output to desktop with the same name
     			openField.setText(fc.getSelectedFile().toString());
-    			saveField.setText(System.getProperty("user.home")+baglady.delimeter+"Desktop"+baglady.delimeter+baglady.getInput().getFileName()+baglady.delimeter);
+    			saveField.setText(System.getProperty("user.home")+baglady.delimeter+"Desktop"+baglady.delimeter+baglady.getInput().getFileName()+"-bagged"+baglady.delimeter);
     		}
     	}
     	//for output, updates field as well
@@ -169,81 +301,219 @@ public class Baggui implements ActionListener{
     		{
     			baglady.setOutput(fc.getSelectedFile().toPath());
     			saveField.setText(fc.getSelectedFile().toString());
+    			baglady.setMetaoutput(Paths.get(baglady.getOutput().toString()+"-metadata.txt"));
     		}
     	}
-    	
-    	//for metadata.txt output, only accepts .txt 
-    	//will add .txt to file is not typed in
-    	else if (e.getSource().equals(metaDataB)) {
-    		FileNameExtensionFilter filter = new FileNameExtensionFilter("text files", "txt", "text");
-    		fc.setFileFilter(filter);
-        	int returnVal = fc.showSaveDialog(metaDataB); 	
-        	if (returnVal == JFileChooser.APPROVE_OPTION)
-        	{
-        		baglady.setMetaoutput(fc.getSelectedFile().toPath());
-        		metaField.setText(fc.getSelectedFile().toString());
-        	}
-        	fc.setFileFilter(null);
-    	}	
-    	 
-    	//"bag!" gets selected algorithm, as well as captures
+    	  	
+    	//"bag it!" gets selected algorithm, as well as captures
     	//data if it was entered into the fields manually
     	else if (e.getSource().equals(start)){
-    		switch (algorithmSelect.getSelectedItem().toString()) {
-    		case "MD5":
-    			baglady.setAlg(StandardSupportedAlgorithms.MD5);
-    			break;
-    		case "SHA-1":
-    			baglady.setAlg(StandardSupportedAlgorithms.SHA1);
-    			break;
-    		case "SHA224":
-    			baglady.setAlg(StandardSupportedAlgorithms.SHA224);
-    			break;
-    		case "SHA256":
-    			baglady.setAlg(StandardSupportedAlgorithms.SHA256);
-    			break;
-    		case "SHA512":
-    			baglady.setAlg(StandardSupportedAlgorithms.SHA512);
-    			break;
+    		
+    		switch (algorithmSelect.getSelectedItem().toString()) 
+    		{
+    			case "MD5":
+    				baglady.setAlg(StandardSupportedAlgorithms.MD5);
+    				break;
+    			case "SHA-1":
+    				baglady.setAlg(StandardSupportedAlgorithms.SHA1);
+    				break;
+    			case "SHA224":
+    				baglady.setAlg(StandardSupportedAlgorithms.SHA224);
+    				break;
+    			case "SHA256":
+    				baglady.setAlg(StandardSupportedAlgorithms.SHA256);
+    				break;
+    			case "SHA512":
+    				baglady.setAlg(StandardSupportedAlgorithms.SHA512);
+    				break;
     		}
     		
     		//getting manual field input
     		if (baglady.getInput()==null && !openField.getText().equals(""))
     			baglady.setInput(Paths.get(openField.getText()));
     		
-    		if (baglady.getOutput()==null && !saveField.getText().equals(""))
+    		if (baglady.getOutput()==null && !saveField.getText().equals("")) 
     			baglady.setOutput(Paths.get(saveField.getText()));    
     	
-    		if (baglady.getMetaoutput() != null)
-    			{
-    				if (baglady.getMetaoutput().toString().indexOf(".txt")==-1 || baglady.getMetaoutput().toString().indexOf(".text")==-1)
-    					baglady.setMetaoutput(Paths.get(baglady.getMetaoutput().toString()+".txt"));
-    			}
-    		else if (baglady.getMetaoutput()==null && !metaField.getText().equals(""))
-    			baglady.setMetaoutput(Paths.get(metaField.getText()));
-   
-    		//makes the bag with options enabled
-    		baglady.doeverything(zipped.isSelected());
+    		if (baglady.getMetaoutput()==null && baglady.getOutput() != null)
+    			baglady.setMetaoutput(Paths.get(baglady.getOutput().toString()+".txt"));
     		
-    		//determines if successful and notify's the user
-    		if (baglady.getSuccess())
-    		{
-    			JOptionPane.showMessageDialog(null, "Bag Created Successfully");
-    		}
-    		else
-    		{
-    			JOptionPane.showMessageDialog(null, "there was an error creating the bag");
-    		}
-    	}
+    		//makes the bag with options enabled
+    		int fields = fieldsFilled();
+    		
+    		if (fields==1)
+    			JOptionPane.showMessageDialog(null, "Please Select a profile");
+    		
+    		else if (fields == 2)
+    			JOptionPane.showMessageDialog(null, "Please make sure all fields are filled");
+    		
+    		else if (fields == 3){
+    			baglady.doeverything(zipped.isSelected(), customFields);
+    			if (baglady.getSuccess())
+    				{JOptionPane.showMessageDialog(null, "Bag Created Successfully");}
+    			else
+    			{
+    				JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");
+    				baglady.setSuccess(true);
+    			}
+    		}		
+    	}    		
     	
     	
     	else if (e.getSource().equals(profileSelect))
     	{
-    		baglady.setProfile(profileSelect.getSelectedItem().toString());
+    		if (profileSelect.getSelectedIndex()==0)
+    			{
+    			mainPanel.remove(bottemPanel);
+    			refresh();	
+    			bottemPanel.setVisible(false);
+    			
+    			if (!maximized)
+    				frame.pack();
+    			
+    			resized=false;
+    			profilepicked=false;
+    			}
+    		else 
+    		{
+    			profile=new Profile((String)profileSelect.getSelectedItem(), this);
+    			this.customFields=profile.getMetaFields();
+    			drawMetaFields();
+    			profilepicked=true;
+    		} 		    		
     	}
     	
+    	else if (e.getSource().equals(customFields.get("Business Function")))
+    		{
+    			String businessFunc = ((JComboBox<String>) customFields.get("Business Function")).getSelectedItem().toString();
+    			String[] test = null;
+    			
+				try {test = profile.updateComboBox(businessFunc);}
+				catch (IOException e1) {e1.printStackTrace();}
+    			
+				((RequiredComboBox)customFields.get("DalClass Record Series")).removeAllItems();
+    			for (int i =0;i<test.length;i++)
+    			{
+    				((JComboBox<String>)customFields.get("DalClass Record Series")).addItem(test[i]);
+    			}
+    			((JComboBox<String>)customFields.get("DalClass Record Series")).setSelectedIndex(0);
+    		}	
     }
 
+	private int fieldsFilled() {
+		if(saveField.getText().equals("") || openField.getText().equals(""))
+			return 2;
+		
+		else if (profilepicked==false || profileSelect.getSelectedIndex()==0)
+			return 1;
+		else 
+			for (Entry<String, Component> entry : customFields.entrySet()) 
+			{
+				if (isFilled(entry.getValue())==false && isRequired(entry.getValue())==true)
+					return 2;
+			}
+		return 3;
+	}
+
+	private boolean isFilled(Component value) {
+		RequiredComboBox box = new RequiredComboBox();
+		RequiredTextField field = new RequiredTextField();
+		if (value.getClass().equals(box.getClass())) 
+		{
+			if (((RequiredComboBox) value).getSelectedItem().toString().isEmpty())
+				return false;
+		}
+		else if (value.getClass().equals(field.getClass()))
+		{
+			if (((RequiredTextField) value).getText().toString().isEmpty())
+				return false;
+		} 
+		return true;
+	}
+	
+	private boolean isRequired(Component value) {
+		RequiredComboBox box =new RequiredComboBox();
+		RequiredTextField field= new RequiredTextField();
+		
+		if (value.getClass().equals(box.getClass())) 
+			return ((RequiredComboBox) value).isRequired();
+		else if (value.getClass().equals(field.getClass()))
+			return ((RequiredTextField) value).isRequired();
+		
+		return false;
+	}
+
+	private void refresh() {
+		metaPanel.revalidate();
+		bottemPanel.revalidate();
+		mainPanel.revalidate();
+		
+		metaPanel.repaint();
+		bottemPanel.repaint();
+		mainPanel.repaint();
+		
+	}
+	
+	@Override
+	public void windowStateChanged(WindowEvent e) {
+		if ((e.getNewState() & frame.ICONIFIED) == frame.ICONIFIED)
+			maximized=false;
+		else if ((e.getNewState() & frame.MAXIMIZED_BOTH) == frame.MAXIMIZED_BOTH)
+			maximized=true;
+	}
+
+	@Override
+	public void windowGainedFocus(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowLostFocus(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowActivated(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosed(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent arg0) {
+		maximized=false;
+	}
+
+	@Override
+	public void windowIconified(WindowEvent arg0) {
+		maximized=true;
+		
+	}
+
+	@Override
+	public void windowOpened(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }
 
 
