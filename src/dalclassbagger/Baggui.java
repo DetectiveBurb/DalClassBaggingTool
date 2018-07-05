@@ -63,6 +63,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	public Baggui(Baglady baglady){
 		
 		mainPanel=new JPanel(new GridBagLayout())
+		//creates the gradient background
 		{
 	        @Override
 	        protected void paintComponent(Graphics grphcs) {
@@ -79,6 +80,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	        }
 		};
 		
+		//various initialization stuff
 		profiles=getProfiles();
 		profileSelect=new JComboBox<String>(profiles);
 		metaPanel=new JPanel(new GridBagLayout());
@@ -96,8 +98,8 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		maximized=false;
 	}
 	
+	//fills the profileSelect combo box by reading what files are in the profiles dir
 	private String[] getProfiles() {
-		
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("No Profile");
 		File folder = new File("src/profiles");
@@ -212,13 +214,16 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	    frame.setVisible(true);
 	}
 	
+	//called once a profile is selected
 	private void drawMetaFields() {
+		//creating the panel
 		metaPanel = new JPanel(new GridBagLayout());
 		metaPanel.setOpaque(false);
 	
 		refresh();
 	
 		mainPanel.remove(bottemPanel);
+		//configuring spacing
 		GridBagConstraints c = new GridBagConstraints();
 		c.ipadx=2;
 		c.ipady=4;
@@ -231,7 +236,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 			colnum=4;
 		else
 			colnum=2;
-		
+		//Positioning components 
 		for (Entry<String, Component> entry : customFields.entrySet()) 
 		{
 		    String key = entry.getKey();
@@ -253,6 +258,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		bottemPanel=new JScrollPane(metaPanel);
 		bottemPanel.setVisible(true);
 		
+		//deals with sizing the panel
 		if (!maximized && !resized) 
 		{
 			resized=true;
@@ -340,7 +346,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     		
     		//makes the bag with options enabled
     		int fields = fieldsFilled();
-    		
+    		//checking that all required fields are filled
     		if (fields==1)
     			JOptionPane.showMessageDialog(null, "Please Select a profile");
     		
@@ -359,7 +365,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     		}		
     	}    		
     	
-    	
+    	//updates meta fields displayed when a profile is selected
     	else if (e.getSource().equals(profileSelect))
     	{
     		if (profileSelect.getSelectedIndex()==0)
@@ -382,7 +388,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     			profilepicked=true;
     		} 		    		
     	}
-    	
+    	//updates the record series when a function is selected.
     	else if (e.getSource().equals(customFields.get("Business Function")))
     		{
     			String businessFunc = ((JComboBox<String>) customFields.get("Business Function")).getSelectedItem().toString();
@@ -399,7 +405,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     			((JComboBox<String>)customFields.get("DalClass Record Series")).setSelectedIndex(0);
     		}	
     }
-
+    //function to determine if all fields are filled.
 	private int fieldsFilled() {
 		if(saveField.getText().equals("") || openField.getText().equals(""))
 			return 2;
@@ -415,6 +421,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		return 3;
 	}
 
+	//checks if a specific field is filled
 	private boolean isFilled(Component value) {
 		RequiredComboBox box = new RequiredComboBox();
 		RequiredTextField field = new RequiredTextField();
@@ -431,6 +438,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		return true;
 	}
 	
+	//checks if a field is a required field
 	private boolean isRequired(Component value) {
 		RequiredComboBox box =new RequiredComboBox();
 		RequiredTextField field= new RequiredTextField();
@@ -443,6 +451,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		return false;
 	}
 
+	//so I don't need to write these six lines all the time
 	private void refresh() {
 		metaPanel.revalidate();
 		bottemPanel.revalidate();
@@ -454,6 +463,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		
 	}
 	
+	//easier to know if the fame is maximized or iconfied this way.
 	@Override
 	public void windowStateChanged(WindowEvent e) {
 		if ((e.getNewState() & frame.ICONIFIED) == frame.ICONIFIED)

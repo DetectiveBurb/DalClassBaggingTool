@@ -268,6 +268,7 @@ public class Baglady {
 		catch (IOException e) {e.printStackTrace(); this.success=false;}
 	}
 
+	//creates the metatext from the metafields map
 	private void makeBagInfo(Map<String, Component> customFields) {
 		
 		for (Entry<String, Component> entry : customFields.entrySet()) 
@@ -276,6 +277,7 @@ public class Baglady {
 		}
 	}
 	
+	//returns the value of a component
 	private String getFilled(Component value) {
 		RequiredComboBox box =new RequiredComboBox();
 		RequiredTextField field= new RequiredTextField();

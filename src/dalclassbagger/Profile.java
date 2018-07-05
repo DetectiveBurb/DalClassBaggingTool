@@ -1,31 +1,21 @@
 package dalclassbagger;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.net.ssl.HttpsURLConnection;
 import javax.swing.BorderFactory;
-import javax.swing.ComboBoxModel;
 import javax.swing.border.Border;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
-
-import java.security.*;
-import java.security.cert.*;
-
-import javax.net.ssl.*;
 
 public class Profile{
 	
@@ -34,6 +24,7 @@ public class Profile{
 	Map<String, Component> map;
 	String[] records;
 	
+	//constructors
 	public Profile() {
 		map=new HashMap<String, Component>();
 	}
@@ -44,9 +35,12 @@ public class Profile{
 		gui = baggui;
 	}
 	
+	//returns the metafield components map 
+	//generates it from the jsons bundled with the software in the profiles dir
 	public Map<String, Component> getMetaFields()
 	{
 		
+			//get and parse the JSON
 			String file = "profiles/"+selected+".json";
 			InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
 			JSONTokener tokener = new JSONTokener(in);
@@ -58,7 +52,7 @@ public class Profile{
 			DatePickerSettings dateSettings = new DatePickerSettings();
 			dateSettings.setFormatForDatesCommonEra(json.getString("dateformat"));
 			
-			
+			//iterate through the JSON and add components to the map
 			for(int i=0;i<jsons.length();i++)
 			{
 				JSONObject curr = (JSONObject) jsons.get(i);
@@ -89,6 +83,8 @@ public class Profile{
 						((RequiredComboBox) map.get(first)).setBorder(border);
 						}		
 				}
+				
+			//some special conditions 
 			if (first.equals("Business Function"))
 				((RequiredComboBox) map.get("Business Function")).addActionListener(gui);
 			else if (first.equals("DalClass Record Series"))				
@@ -98,7 +94,7 @@ public class Profile{
 		return map;
 	}
 	
-	
+	//turns a JsonArray to a normal String[]
 	private String[] JArray2Array(JSONArray valueList) {
 		String[] list = new String[valueList.length()];
 		for(int i=0; i<valueList.length();i++) 
@@ -107,7 +103,7 @@ public class Profile{
 		return list;
 	}
 
-
+	//updates the record series combobox when a business functions is selected.
 	public String[] updateComboBox(String series) throws IOException 
 	{		
 		
