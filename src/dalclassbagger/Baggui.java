@@ -18,20 +18,27 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Paths;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import com.alee.laf.WebLookAndFeel;
 import com.github.lgooddatepicker.*;
+import com.sun.jndi.toolkit.url.Uri;
+
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 
 public class Baggui implements ActionListener,WindowListener, WindowFocusListener,WindowStateListener{
@@ -81,7 +88,12 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		};
 		
 		//various initialization stuff
-		profiles=getProfiles();
+		try {
+			profiles=getProfiles();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		profileSelect=new JComboBox<String>(profiles);
 		metaPanel=new JPanel(new GridBagLayout());
 		bottemPanel=new JScrollPane();
@@ -99,17 +111,45 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	}
 	
 	//fills the profileSelect combo box by reading what files are in the profiles dir
-	private String[] getProfiles() {
+	private String[] getProfiles() throws IOException {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("No Profile");
-		File folder = new File("src/profiles");
-		 for (final File fileEntry : folder.listFiles())		        
-			 list.add(fileEntry.getName().substring(0, fileEntry.getName().length()-5));
-		String[] returnable = new String[list.size()];
+		
+		
+		if (System.getProperty("java.class.path").indexOf(".jar") < 48) {
+			CodeSource src = Baggui.class.getProtectionDomain().getCodeSource();
+			if (src != null) {
+				URL jar = src.getLocation();
+				ZipInputStream zip = new ZipInputStream(jar.openStream());
+				while(true) {
+					ZipEntry e = zip.getNextEntry();
+					if (e == null)
+						break;
+					String name = e.getName();
+					if (name.startsWith("profiles/")) {
+						if (name.length()>9)
+							list.add(name.substring(9,name.length()-5));
+					}
+				}
+			} 
+			else {
+				System.out.println("failed to read profile directory");
+			}
+		}
+		
+		else {
+			File folder = new File("src/profiles");
+			 for (final File fileEntry : folder.listFiles())		        
+				 list.add(fileEntry.getName().substring(0, fileEntry.getName().length()-5));
+		}
+			
+	    String[] returnable = new String[list.size()];
 		returnable=list.toArray(returnable);
 		return returnable;
 	}
-
+	
+	
+	
 	//creates and styles gui
 	public void createAndShowGUI() {
 		//Color slategrey = new Color(112,115,114);
