@@ -60,7 +60,7 @@ public class Profile{
 				String first = keys.next();
 				curr=(JSONObject) curr.get(first);
 				if (curr.getString("type").equals("text"))
-					map.put(first, new RequiredTextField(17));
+					map.put(first, new RequiredTextField(21));
 				else if (curr.getString("type").equals("date"))
 					map.put(first, new DatePicker(dateSettings.copySettings()));
 				else if (curr.getString("type").equals("list"))
@@ -109,7 +109,7 @@ public class Profile{
 		
 		ArrayList<String> options=new ArrayList<String>();
 		
-		for(int i=0;i<records.length;i++)
+		for(int i=1;i<records.length;i++)
 		{
 			String curr = records[i];
 			String num=records[i].substring(0,2);

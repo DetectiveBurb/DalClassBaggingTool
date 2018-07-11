@@ -83,7 +83,6 @@ public class Baglady {
 	public void setOutput(Path output) {
 		this.output = output;
 	}
-
 	
 	public Bag getBag() {
 		return bag;

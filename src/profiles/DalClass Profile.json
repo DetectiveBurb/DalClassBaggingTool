@@ -1,6 +1,6 @@
 {
 	"dateformat":"yyyy-MM-dd",
-   "ordered":[
+	"ordered":[
 	    {"Transfer Number":{ 
 	    	"type":"text",
                 "fieldRequired":true
@@ -26,6 +26,7 @@
 		"type":"list",
                 "fieldRequired":false,		
                 "valueList": [
+                	"",
                     "AD Admninistration",
                     "CS Campus Services",
                     "ER External Relations and Communicatons",
@@ -44,7 +45,8 @@
 	    {"DalClass Record Series": {
                 "fieldRequired":false,
 	    		"type":"list",		
-                "valueList": [ 
+                "valueList": [
+                	"", 
 					"AD01 Administration General",
 					"AD10 Advice and Inquiries",
 					"AD20 Appreciation and Complaints",
@@ -252,7 +254,7 @@
                 "fieldRequired":false,
                 "defaultValue": "???",
                 "valueList": [
-                    "???",
+                    "",
                     "Original (Born Digital)",
                     "Original Surrogate (Digitized/Migrated & Physical/Original Destroyed)",
                     "Surrogate (Digitized/Migrated & Physical/Original Kept)",
@@ -269,9 +271,9 @@
 	    	"type":"list",		
                 "fieldRequired":true,
                 "valueList": [
+                    "",
                     "Yes",
-                    "No",
-                    "Unknown"
+                    "No"
                 ]
             }},
 	    

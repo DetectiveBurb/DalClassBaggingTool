@@ -8,7 +8,8 @@ public class Dalclass {
 
 	public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
 		Baglady baglady=new Baglady();
-		Baggui gui=new Baggui(baglady);		
+		Baggui gui=new Baggui(baglady);
+		gui.askProfile();
 		gui.createAndShowGUI();
 	}
 	
