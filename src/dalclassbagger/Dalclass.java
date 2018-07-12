@@ -12,6 +12,4 @@ public class Dalclass {
 		gui.askProfile();
 		gui.createAndShowGUI();
 	}
-	
-	
 }

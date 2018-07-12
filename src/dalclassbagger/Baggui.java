@@ -2,6 +2,7 @@ package dalclassbagger;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
@@ -46,8 +47,8 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	static String[] profiles;
 	static JComboBox<String> algorithmSelect ;//= new JComboBox<String>(algorithms); 
 	static JComboBox<String> profileSelect;
-	static JTextField saveField = new JTextField(22);
-	static JTextField openField = new JTextField(22); 
+	static JTextField saveField;// = new JTextField(22);
+	static JTextField openField;// = new JTextField(22); 
 	static JPanel mainPanel;
 	static JPanel p;
 	static JPanel metaPanel;
@@ -217,7 +218,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	    resize();
 	    refresh();
 	}
-	
+
 	//fills the profileSelect combo box by reading what files are in the profiles dir
 	private String[] getProfiles() throws IOException {
 		ArrayList<String> list = new ArrayList<String>();
@@ -251,10 +252,32 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		returnable=list.toArray(returnable);
 		return returnable;
 	}
-	
-	
-			
 
+	public void askProfile() {
+		ImageIcon icon =new ImageIcon(this.getClass().getClassLoader().getResource("images/Dalfavicon.png"));
+	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
+		String s = (String)JOptionPane.showInputDialog(
+		                    null,
+		                    "Please Select a Profile",
+		                    null, JOptionPane.QUESTION_MESSAGE,
+		                    icon,
+		                    profiles,
+		                    profiles[0]
+		                    );
+
+		//If a string was returned, say so.
+		if ((s != null) && (s.length() > 0)) {
+		   profileName=s;
+		   profilepicked=true;
+		    return;
+		}
+		else { 
+			profileName="No Profile";
+			profilepicked=false;
+		}
+		return;
+	}
+	
 	//called once a profile is selected
 	private void drawMetaFields() {
 		
@@ -274,7 +297,6 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 			
 			//creating the panel
 			metaPanel = new JPanel(new GridBagLayout());	
-			metaPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 			mainPanel.remove(bottemPanel);
 			//configuring spacing
 			GridBagConstraints c = new GridBagConstraints();
@@ -284,21 +306,14 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 			c.gridx=0;
 			c.gridy=0;
 			c.anchor = (c.gridx == 0) ? GridBagConstraints.WEST : GridBagConstraints.EAST;
-			c.fill = (c.gridx == 0) ? GridBagConstraints.BOTH : GridBagConstraints.HORIZONTAL;
+			//c.fill = (c.gridx == 0) ? GridBagConstraints.BOTH : GridBagConstraints.HORIZONTAL;
+			int colnum = (maximized) ? 4 : 2;
 		
-			int colnum;
-			if(maximized)
-				colnum=4;
-			else
-				colnum=2;
-			//Positioning components 
 			for (Entry<String, Component> entry : customFields.entrySet()) 
 			{
 				String key = entry.getKey();
 				Component field =  entry.getValue();
 				JLabel label = new JLabel(key+":");
-				label.setAlignmentX(Component.LEFT_ALIGNMENT);
-				((JComponent) field).setAlignmentX(Component.LEFT_ALIGNMENT);
 				metaPanel.add(label,c);
 				c.gridx++;
 				
@@ -323,10 +338,6 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 			mainPanel.add(bottemPanel,c);
 			frame.getContentPane().add(mainPanel);
 			refresh();
-	    	if(!maximized) {
-	    		frame.pack();
-	    	}
-	    	frame.setVisible(true);
 		}
 
 	}
@@ -350,23 +361,22 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 			frame.pack();
 			frame.setMinimumSize(frame.getSize());
 		}
-		else if (maximized && profilepicked) 
-		{
-			mainPanel.setSize(frame.getSize());
-			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth()-50,mainPanel.getHeight()-250));
-		}
-		
-		
 		else if (!maximized && !profilepicked)
 		{
 			resized=false;
 			mainPanel.setPreferredSize(new Dimension(550,190));
 			frame.setMinimumSize(frame.getSize());
-		}
+		}	
+		else if (maximized && profilepicked) 
+		{
+			mainPanel.setSize(frame.getSize());
+			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth()-50,mainPanel.getHeight()-250));
+		}		
 	}
 
 	//event listeners 
-    public void actionPerformed(ActionEvent e) {
+    @SuppressWarnings("unchecked")
+	public void actionPerformed(ActionEvent e) {
     	//for bag selection
     	if (e.getSource().equals(open)) {    	
     		int returnVal = fc.showOpenDialog(open); 	
@@ -432,12 +442,19 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     			JOptionPane.showMessageDialog(null, "Please make sure all fields are filled");
     		
     		else if (fields == 3){
-    			if (profilepicked)
+    			if (profilepicked) {
+    		        frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     				baglady.doeverything(zipped.isSelected(), customFields);
-    			else
+    	            frame.setCursor(Cursor.getDefaultCursor());
+    			}
+    			else {
+    		        frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     				baglady.doeverything(zipped.isSelected());
+    	            frame.setCursor(Cursor.getDefaultCursor());
+    			}
+    			
     			if (baglady.getSuccess())
-    				{JOptionPane.showMessageDialog(null, "Bag Created Successfully");}
+    				JOptionPane.showMessageDialog(null, "Bag Created Successfully");
     			else
     			{
     				JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");
@@ -487,6 +504,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	private boolean isFilled(Component value) {
 		RequiredComboBox box = new RequiredComboBox();
 		RequiredTextField field = new RequiredTextField();
+		
 		if (value.getClass().equals(box.getClass())) 
 		{
 			if (((RequiredComboBox) value).getSelectedItem().toString().isEmpty())
@@ -522,6 +540,9 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		metaPanel.repaint();
 		bottemPanel.repaint();
 		mainPanel.repaint();	
+		
+		if(!maximized) 
+    		frame.pack();
 	}
 	
 	//easier to know if the fame is maximized or iconfied this way.
@@ -546,31 +567,6 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	@Override
 	public void windowIconified(WindowEvent arg0) {
 		maximized=true;
-	}
-
-	public void askProfile() {
-		ImageIcon icon =new ImageIcon(this.getClass().getClassLoader().getResource("images/Dalfavicon.png"));
-	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
-		String s = (String)JOptionPane.showInputDialog(
-		                    null,
-		                    "Please Select a Profile",
-		                    null, JOptionPane.QUESTION_MESSAGE,
-		                    icon,
-		                    profiles,
-		                    profiles[0]
-		                    );
-
-		//If a string was returned, say so.
-		if ((s != null) && (s.length() > 0)) {
-		   profileName=s;
-		   profilepicked=true;
-		    return;
-		}
-		else { 
-			profileName="No Profile";
-			profilepicked=false;
-		}
-		return;
 	}
 
 	@Override

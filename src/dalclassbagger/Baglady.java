@@ -44,9 +44,9 @@ public class Baglady {
 			delimeter = "\\";
 		else 
 			delimeter = "/";	
-		
+
 		metaoutput = null;
-		
+
 		this.bag = new Bag();
 		metadata=new Metadata();
 	}
@@ -57,14 +57,13 @@ public class Baglady {
 		this.output=out;
 		this.alg=alg;
 		this.metaoutput=metaoutput;
-		
+
 		if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0)
 			delimeter = "\\";
 		else
 			delimeter = "/";
 		this.bag = new Bag();
 		metadata=new Metadata();
-
 	}
 	
 	//getters and setters
@@ -122,7 +121,7 @@ public class Baglady {
 	public void cleanFolder(Boolean zip) {
 		copyFolder();
 		try {
-			Files.walk(Paths.get(input.toString()+"\\data"))
+			Files.walk(Paths.get(input.toString()+delimeter+"data"))
 		      .sorted(Comparator.reverseOrder())
 		      .map(Path::toFile)
 		      .forEach(File::delete);
@@ -135,8 +134,6 @@ public class Baglady {
 			      .sorted(Comparator.reverseOrder())
 			      .map(Path::toFile)
 			      .forEach(File::delete);
-				
-			
 		} 
 		catch (IOException e) {e.printStackTrace();}
 	}
@@ -144,9 +141,9 @@ public class Baglady {
 	//copys folders to the desired output location
 	//as the API only makes bag in place, this will put them in the desired output
 	public void copyFolder(){
-		Path src = Paths.get(input.toString()+"\\data");
+		Path src = Paths.get(input.toString()+delimeter+"data");
 	     try{
-	    	 Files.walk(Paths.get(input.toString()+"\\data"))
+	    	 Files.walk(Paths.get(input.toString()+delimeter+"data"))
 	         .forEach( s ->{
 	        	 try
 	             {   
@@ -218,10 +215,10 @@ public class Baglady {
 		catch (IOException e1) {e1.printStackTrace();}
 		
 		//get bag metadata (version, etc)
-		List<SimpleImmutableEntry<String, String>> x = bag.getMetadata().getAll();
+		List<SimpleImmutableEntry<String, String>> bagMetaData = bag.getMetadata().getAll();
 		
 		//add data to string
-		for(Object item : x) {
+		for(Object item : bagMetaData) {
 			 text+=item.toString()+"\r\n";
 		}
 		 

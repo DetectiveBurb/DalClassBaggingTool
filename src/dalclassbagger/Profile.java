@@ -39,58 +39,56 @@ public class Profile{
 	//generates it from the jsons bundled with the software in the profiles dir
 	public Map<String, Component> getMetaFields()
 	{
+		//get and parse the JSON
+		String file = "profiles/"+selected+".json";
+		InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
+		JSONTokener tokener = new JSONTokener(in);
+		JSONObject json = new JSONObject(tokener);	
+		JSONArray jsons = (JSONArray) json.get("ordered");
+		Border border=BorderFactory.createLineBorder(Color.red);		
+		RequiredTextField textField = new RequiredTextField(); 
+		RequiredComboBox box = new RequiredComboBox();
+		DatePickerSettings dateSettings = new DatePickerSettings();
+		dateSettings.setFormatForDatesCommonEra(json.getString("dateformat"));
 		
-			//get and parse the JSON
-			String file = "profiles/"+selected+".json";
-			InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
-			JSONTokener tokener = new JSONTokener(in);
-			JSONObject json = new JSONObject(tokener);	
-			JSONArray jsons = (JSONArray) json.get("ordered");
-			Border border=BorderFactory.createLineBorder(Color.red);		
-			RequiredTextField textField = new RequiredTextField(); 
-			RequiredComboBox box = new RequiredComboBox();
-			DatePickerSettings dateSettings = new DatePickerSettings();
-			dateSettings.setFormatForDatesCommonEra(json.getString("dateformat"));
+		//iterate through the JSON and add components to the map
+		for(int i=0;i<jsons.length();i++)
+		{
+			JSONObject curr = (JSONObject) jsons.get(i);
+			Iterator<String> keys = curr.keys();
+			String first = keys.next();
+			curr=(JSONObject) curr.get(first);
 			
-			//iterate through the JSON and add components to the map
-			for(int i=0;i<jsons.length();i++)
-			{
-				JSONObject curr = (JSONObject) jsons.get(i);
-				Iterator<String> keys = curr.keys();
-				String first = keys.next();
-				curr=(JSONObject) curr.get(first);
-				if (curr.getString("type").equals("text"))
-					map.put(first, new RequiredTextField(21));
-				else if (curr.getString("type").equals("date"))
-					map.put(first, new DatePicker(dateSettings.copySettings()));
-				else if (curr.getString("type").equals("list"))
-					{
-					JSONArray valueList = (JSONArray) curr.get("valueList");
-					String[] valueListarray = JArray2Array(valueList);
-					map.put(first, new RequiredComboBox(valueListarray));
-					}
-
-				if (curr.getBoolean("fieldRequired"))
+			if (curr.getString("type").equals("text"))
+				map.put(first, new RequiredTextField(21));
+			else if (curr.getString("type").equals("date"))
+				map.put(first, new DatePicker(dateSettings.copySettings()));
+			else if (curr.getString("type").equals("list"))
 				{
-					if (map.get(first).getClass().equals(textField.getClass()))
-						{
-							((RequiredTextField) map.get(first)).setRequired(true);
-							((RequiredTextField) map.get(first)).setBorder(border);
-						}
-					else if (map.get(first).getClass().equals(box.getClass()))
-						{
-						((RequiredComboBox) map.get(first)).setRequired(true);			
-						((RequiredComboBox) map.get(first)).setBorder(border);
-						}		
+				JSONArray valueList = (JSONArray) curr.get("valueList");
+				String[] valueListarray = JArray2Array(valueList);
+				map.put(first, new RequiredComboBox(valueListarray));
 				}
-				
-			//some special conditions 
-			if (first.equals("Business Function"))
-				((RequiredComboBox) map.get("Business Function")).addActionListener(gui);
-			else if (first.equals("DalClass Record Series"))				
-				records=JArray2Array(curr.getJSONArray("valueList"));
+			if (curr.getBoolean("fieldRequired"))
+			{
+				if (map.get(first).getClass().equals(textField.getClass()))
+					{
+					((RequiredTextField) map.get(first)).setRequired(true);
+					((RequiredTextField) map.get(first)).setBorder(border);
+					}
+				else if (map.get(first).getClass().equals(box.getClass()))
+					{
+					((RequiredComboBox) map.get(first)).setRequired(true);			
+					((RequiredComboBox) map.get(first)).setBorder(border);
+					}		
 			}
-		
+				
+		//some special conditions 
+		if (first.equals("Business Function"))
+			((RequiredComboBox) map.get("Business Function")).addActionListener(gui);
+		else if (first.equals("DalClass Record Series"))				
+			records=JArray2Array(curr.getJSONArray("valueList"));
+		}
 		return map;
 	}
 	
@@ -99,14 +97,13 @@ public class Profile{
 		String[] list = new String[valueList.length()];
 		for(int i=0; i<valueList.length();i++) 
 			list[i] = (String) valueList.get(i);
-
+		
 		return list;
 	}
 
 	//updates the record series combobox when a business functions is selected.
 	public String[] updateComboBox(String series) throws IOException 
 	{		
-		
 		ArrayList<String> options=new ArrayList<String>();
 		
 		for(int i=1;i<records.length;i++)
