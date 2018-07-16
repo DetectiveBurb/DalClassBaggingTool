@@ -65,8 +65,8 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	
 	 //constructor, adds action listeners
 	public Baggui(Baglady baglady){
+		//so it's not hideous 
 		WebLookAndFeel.install();
-		
 		//fc= new JFileChooser();
 		open = new JButton("Select Folder");
 		save = new JButton("Save as");
@@ -95,11 +95,9 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		};
 		
 		//various initialization stuff
-		try {
-			profiles=getProfiles();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		try {profiles=getProfiles();} 
+		catch (IOException e) {e.printStackTrace();}
+		
 		profileSelect=new JComboBox<String>(profiles);
 		metaPanel=new JPanel(new GridBagLayout());
 		bottemPanel=new JScrollPane();
@@ -122,8 +120,6 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		Color slategrey = new Color(112,115,114);
 		Color dalgold =new Color(192,140,12);
 		p = new JPanel(new GridBagLayout());
-				
-		//so it's not hideous 
 		
 		//misc window setup
 		SwingUtilities.updateComponentTreeUI(frame);	
@@ -164,7 +160,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	    saveField.setFont(f);
 	    openField.setFont(f);
 	    
-	    //positioning components
+	  //  positioning components
 	  //  c.gridx=0;
 	  //  c.gridy=0;
 	  //  p.add(profileSelect,c);    
@@ -257,19 +253,23 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		ImageIcon icon =new ImageIcon(this.getClass().getClassLoader().getResource("images/Dalfavicon.png"));
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
 		String s = (String)JOptionPane.showInputDialog(
-		                    null,
-		                    "Please Select a Profile",
-		                    null, JOptionPane.QUESTION_MESSAGE,
-		                    icon,
-		                    profiles,
-		                    profiles[0]
-		                    );
+				null,
+		        "Please Select a Profile",
+		        null,
+		        JOptionPane.QUESTION_MESSAGE,
+		        icon,
+		        profiles,
+		        profiles[0]
+		        );
 
 		//If a string was returned, say so.
 		if ((s != null) && (s.length() > 0)) {
 		   profileName=s;
 		   profilepicked=true;
-		    return;
+		   profile=new Profile(profileName, this);
+		   if(!profileName.equals("No Profile"))
+			   this.customFields=profile.getMetaFields();
+		   return;
 		}
 		else { 
 			profileName="No Profile";
@@ -291,10 +291,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		}
 		else 
 		{
-			profile=new Profile(profileName, this);
-			this.customFields=profile.getMetaFields();
 			profilepicked=true;
-			
 			//creating the panel
 			metaPanel = new JPanel(new GridBagLayout());	
 			mainPanel.remove(bottemPanel);
@@ -426,38 +423,44 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     		if (baglady.getInput()==null && !openField.getText().equals(""))
     			baglady.setInput(Paths.get(openField.getText()));
     		
-    		if (baglady.getOutput()==null && !saveField.getText().equals("")) 
-    			baglady.setOutput(Paths.get(saveField.getText()));    
+    		if (!saveField.getText().equals("")) 
+    		{
+    			baglady.setOutput(Paths.get(saveField.getText()));
+    			baglady.setMetaoutput(Paths.get(saveField.getText().toString().substring(0, saveField.getText().toString().length()-1)+"-metadata.txt"));
+    		}
     	
-    		if (baglady.getMetaoutput()==null && baglady.getOutput() != null)
-    			baglady.setMetaoutput(Paths.get(baglady.getOutput().toString()+".txt"));
-    		
-    		//makes the bag with options enabled
+    		//if (baglady.getMetaoutput()==null && baglady.getOutput() != null)
+    		//	baglady.setMetaoutput(Paths.get(baglady.getOutput().toString()+".txt"));
+    	
     		int fields = fieldsFilled();
     		//checking that all required fields are filled
     		if (fields==1)
     			JOptionPane.showMessageDialog(null, "Please Select a profile");
     		
     		else if (fields == 2)
-    			JOptionPane.showMessageDialog(null, "Please make sure all fields are filled");
+    			JOptionPane.showMessageDialog(null, "Please make sure all fields are filled \r\nRequired fields are outlined in red.");
     		
     		else if (fields == 3){
+        		//makes the bag with options enabled
+
     			if (profilepicked) {
     		        frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     				baglady.doeverything(zipped.isSelected(), customFields);
-    	            frame.setCursor(Cursor.getDefaultCursor());
     			}
     			else {
     		        frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     				baglady.doeverything(zipped.isSelected());
-    	            frame.setCursor(Cursor.getDefaultCursor());
     			}
     			
-    			if (baglady.getSuccess())
+    			if (baglady.getSuccess()) {
     				JOptionPane.showMessageDialog(null, "Bag Created Successfully");
+    	            frame.setCursor(Cursor.getDefaultCursor());
+    			}
     			else
     			{
+    				baglady.cleanFolder(zipped.isSelected());
     				JOptionPane.showMessageDialog(null, "Sorry, There was an error creating the bag");
+    	            frame.setCursor(Cursor.getDefaultCursor());
     				baglady.setSuccess(true);
     			}
     		}		

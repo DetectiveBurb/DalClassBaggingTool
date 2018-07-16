@@ -125,17 +125,21 @@ public class Baglady {
 		      .sorted(Comparator.reverseOrder())
 		      .map(Path::toFile)
 		      .forEach(File::delete);
-			Files.delete(Paths.get(input.toString()+delimeter+"bag-info.txt"));
-			Files.delete(Paths.get(input.toString()+delimeter+"bagit.txt"));
-			Files.delete(Paths.get(input.toString()+delimeter+"manifest-"+alg+".txt"));
-			Files.delete(Paths.get(input.toString()+delimeter+"tagmanifest-"+alg+".txt"));
-			if (zip)
-				Files.walk(output)
-			      .sorted(Comparator.reverseOrder())
-			      .map(Path::toFile)
-			      .forEach(File::delete);
 		} 
 		catch (IOException e) {e.printStackTrace();}
+		try {Files.delete(Paths.get(input.toString()+delimeter+"bag-info.txt"));} 
+		catch (IOException e) {e.printStackTrace();}
+		try {Files.delete(Paths.get(input.toString()+delimeter+"bagit.txt"));} 
+		catch (IOException e) {e.printStackTrace();}
+		try {Files.delete(Paths.get(input.toString()+delimeter+"manifest-"+alg+".txt"));}
+		catch (IOException e) {e.printStackTrace();}
+		try {Files.delete(Paths.get(input.toString()+delimeter+"tagmanifest-"+alg+".txt"));} 
+		catch (IOException e) {e.printStackTrace();}
+			
+		if (zip)
+			try {Files.walk(output).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);}
+			catch (IOException e) {e.printStackTrace();}
+		
 	}
 
 	//copys folders to the desired output location
@@ -197,9 +201,10 @@ public class Baglady {
 
 	}
 	
-	public void writeBag() throws NoSuchAlgorithmException, IOException
+	public void writeBag()
 	{
-		BagWriter.write(bag, output);
+		try{BagWriter.write(bag, output);}
+		catch(NoSuchAlgorithmException | IOException e) {e.printStackTrace();}
 	}
 	
 	//make our own metadata file 
@@ -235,18 +240,17 @@ public class Baglady {
 	//what happens when start is pushed, creates bag and cleans up after it.
 	public void doeverything(boolean zip, Map<String, Component> customFields)
 	{
-		try {
-			makeBagInfo(customFields);
-			makeBag();
-			writeBag();
+		makeBagInfo(customFields);
+		try {makeBag();}
+		catch (IOException | NoSuchAlgorithmException e) {e.printStackTrace(); this.success=false;}
+		writeBag();
 			if (zip)
-				pack();
+				try {pack();} 
+				catch (IOException e1) {e1.printStackTrace();}
 			if (metaoutput != null)
-				makeMetaData();
-			cleanFolder(zip);
-		} 
-		catch (NoSuchAlgorithmException e) {e.printStackTrace(); this.success=false;} 
-		catch (IOException e) {e.printStackTrace(); this.success=false;}
+				try {makeMetaData();}
+				catch (IOException e) {e.printStackTrace();}
+		cleanFolder(zip);
 	}
 	
 	public void doeverything(boolean zip)
