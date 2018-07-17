@@ -42,6 +42,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	static JButton open; //= new JButton("Select Folder");
 	static JButton save;// = new JButton("Save as");
 	static JButton start;// = new JButton("Bag it!");
+	static JButton back;
 	static JCheckBox zipped;// = new JCheckBox("zip the bag");
 	static String[] algorithms = {"MD5","SHA-1","SHA224","SHA256","SHA512"};
 	static String[] profiles;
@@ -71,6 +72,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		open = new JButton("Select Folder");
 		save = new JButton("Save as");
 		start = new JButton("Bag it!");
+		back = new JButton("Select Another Profile");
 		zipped = new JCheckBox("zip the bag");
 		algorithmSelect = new JComboBox<String>(algorithms); 
 		saveField = new JTextField(22);
@@ -104,6 +106,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		open.addActionListener(this);
 		save.addActionListener(this);
 		start.addActionListener(this);
+		back.addActionListener(this);
 		profileSelect.addActionListener(this);
 		this.baglady=baglady;
 		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -185,12 +188,16 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	    c.gridy=4;
 	    p.add(zipped,c);
 	    
-	    c.gridy=4;
+	    c.gridy=5;
 	    c.gridx=4;
 	    p.add(start,c);
 	    
-	    c.gridx=0;
 	    c.gridy=5;
+	    c.gridx=0;
+	    p.add(back,c);
+	    
+	    c.gridx=0;
+	    c.gridy=6;
 	    c.weightx=0.0;
 	    c.fill=GridBagConstraints.HORIZONTAL;
 	    c.gridwidth=6;
@@ -271,10 +278,6 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 			   this.customFields=profile.getMetaFields();
 		   return;
 		}
-		else { 
-			profileName="No Profile";
-			profilepicked=false;
-		}
 		return;
 	}
 	
@@ -303,9 +306,9 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 			c.gridx=0;
 			c.gridy=0;
 			c.anchor = (c.gridx == 0) ? GridBagConstraints.WEST : GridBagConstraints.EAST;
-			//c.fill = (c.gridx == 0) ? GridBagConstraints.BOTH : GridBagConstraints.HORIZONTAL;
-			int colnum = (maximized) ? 4 : 2;
-		
+			c.fill = (c.gridx == 0) ? GridBagConstraints.BOTH : GridBagConstraints.HORIZONTAL;
+			//int colnum = (maximized) ? 4 : 2;
+			int colnum = 2;
 			for (Entry<String, Component> entry : customFields.entrySet()) 
 			{
 				String key = entry.getKey();
@@ -361,8 +364,9 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		else if (!maximized && !profilepicked)
 		{
 			resized=false;
-			mainPanel.setPreferredSize(new Dimension(550,190));
-			frame.setMinimumSize(frame.getSize());
+			mainPanel.setPreferredSize(new Dimension(570,200));
+			frame.pack();
+			frame.setMinimumSize(new Dimension(571,231));
 		}	
 		else if (maximized && profilepicked) 
 		{
@@ -471,22 +475,41 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     	{
     		drawMetaFields();		    		
     	}
-    	//updates the record series when a function is selected.
-    	else if (e.getSource().equals(customFields.get("Business Function")))
+    	else if (e.getSource().equals(back))
+    	{
+    		int confirmed = 5;
+    		//ImageIcon icon =new ImageIcon(this.getClass().getClassLoader().getResource("images/Dalfavicon.png"));
+    		confirmed = JOptionPane.showConfirmDialog(
+    				null,
+    				"Changing profiles will delete all entered meta data, do you wish to continue?",
+    				"Confirm Profile Change",
+    				JOptionPane.YES_NO_OPTION
+    		        );
+    		if (confirmed == JOptionPane.YES_OPTION) 
     		{
-    			String businessFunc = ((JComboBox<String>) customFields.get("Business Function")).getSelectedItem().toString();
-    			String[] test = null;
+    			askProfile();
     			
-				try {test = profile.updateComboBox(businessFunc);}
-				catch (IOException e1) {e1.printStackTrace();}
-    			
-				((RequiredComboBox)customFields.get("DalClass Record Series")).removeAllItems();
-    			for (int i =0;i<test.length;i++)
+    			drawMetaFields();
+    		}
+    	}
+    	//updates the record series when a function is selected.
+    	else if(customFields != null) {
+    		if (e.getSource().equals(customFields.get("Business Function")))
     			{
-    				((JComboBox<String>)customFields.get("DalClass Record Series")).addItem(test[i]);
+    				String businessFunc = ((JComboBox<String>) customFields.get("Business Function")).getSelectedItem().toString();
+    				String[] newOptions = null;
+    			
+    				try {newOptions = profile.updateComboBox(businessFunc);}
+    				catch (IOException e1) {e1.printStackTrace();}
+    			
+    				((RequiredComboBox)customFields.get("DalClass Record Series")).removeAllItems();
+    				for (int i =0;i<newOptions.length;i++)
+    				{
+    					((JComboBox<String>)customFields.get("DalClass Record Series")).addItem(newOptions[i]);
+    				}
+    				((JComboBox<String>)customFields.get("DalClass Record Series")).setSelectedIndex(0);
     			}
-    			((JComboBox<String>)customFields.get("DalClass Record Series")).setSelectedIndex(0);
-    		}	
+    	}
     }
     //function to determine if all fields are filled.
 	private int fieldsFilled() {

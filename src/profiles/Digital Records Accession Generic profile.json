@@ -79,8 +79,7 @@
         {
             "Records Retention Type": {
                 "fieldRequired": false,
-		"type": "list",
-                "defaultValue": "???",
+				"type": "list",
                 "valueList": [
                     "???",
                     "Permanent (Keep Forever)",
@@ -116,8 +115,7 @@
         {
             "Records Hashed Before Transfer?": {
                 "fieldRequired": false,
-                "defaultValue": "???",
-		"type": "list",
+				"type": "list",
                 "valueList": [
                     "???",
                     "YES",
@@ -128,8 +126,7 @@
         {
             "Hash Signature Type": {
                 "fieldRequired": false,
-		"type": "list",
-                "defaultValue": "???",
+				"type": "list",
                 "valueList": [
                     "???",
                     "MD5",
@@ -149,7 +146,6 @@
         {
             "Records Medium/Carrier #1": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",
@@ -186,8 +182,7 @@
         {
             "Records Medium/Carrier #2": {
                 "fieldRequired": false,
-		"type": "list",
-                "defaultValue": "???",
+				"type": "list",
                 "valueList": [
                     "???",
                     "CD",
@@ -223,8 +218,7 @@
         {
             "Records Medium/Carrier #3": {
                 "fieldRequired": false,
-                "defaultValue": "???",
-		"type": "list",
+				"type": "list",
                 "valueList": [
                     "???",
                     "CD",
@@ -260,8 +254,7 @@
         {
             "Records Medium/Carrier #4": {
                 "fieldRequired": false,
-                "defaultValue": "???",
-		"type": "list",
+				"type": "list",
                 "valueList": [
                     "???",
                     "CD",
@@ -298,7 +291,6 @@
             "Records Medium/Carrier #5": {
                 "fieldRequired": false,
 				"type": "list",
-                "defaultValue": "???",
                 "valueList": [
                     "???",
                     "CD",
@@ -334,7 +326,6 @@
         {
             "Transfer Media Kept?": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",
@@ -371,7 +362,6 @@
         {
             "Digital Originality": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",
@@ -392,7 +382,6 @@
             "Classification (for Access)": {
                 "fieldRequired": false,
 				"type": "list",
-                "defaultValue": "???",
                 "valueList": [
                     "???",
                     "Open/Public",
@@ -407,7 +396,6 @@
         {
             "Classification (Value for Priority Actions)": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",
@@ -421,7 +409,6 @@
         {
             "Classification (Appraisal - Value for Agency)": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",
@@ -437,7 +424,6 @@
         {
             "Classification (Appraisal - Value for Residents/citizen)": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",
@@ -450,7 +436,6 @@
         {
             "Classification (Appraisal - Value for Nation/State/Locality)": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",
@@ -465,7 +450,6 @@
         {
             "Classification (Appraisal - General Value)": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",
@@ -478,7 +462,6 @@
         {
             "Digital Content Structure": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",
@@ -516,7 +499,6 @@
         {
             "Digital Format Openness": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",
@@ -531,7 +513,6 @@
         {
             "OAIS Digital Curation Lifecycle": {
                 "fieldRequired": false,
-                "defaultValue": "???",
 				"type": "list",
                 "valueList": [
                     "???",

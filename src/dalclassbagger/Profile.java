@@ -56,38 +56,42 @@ public class Profile{
 		{
 			JSONObject curr = (JSONObject) jsons.get(i);
 			Iterator<String> keys = curr.keys();
-			String first = keys.next();
-			curr=(JSONObject) curr.get(first);
+			String label = keys.next();
+			curr=(JSONObject) curr.get(label);
 			
 			if (curr.getString("type").equals("text"))
-				map.put(first, new RequiredTextField(21));
+				map.put(label, new RequiredTextField(21));
 			else if (curr.getString("type").equals("date"))
-				map.put(first, new DatePicker(dateSettings.copySettings()));
+				map.put(label, new DatePicker(dateSettings.copySettings()));
 			else if (curr.getString("type").equals("list"))
 				{
 				JSONArray valueList = (JSONArray) curr.get("valueList");
 				String[] valueListarray = JArray2Array(valueList);
-				map.put(first, new RequiredComboBox(valueListarray));
+				map.put(label, new RequiredComboBox(valueListarray));
 				}
 			if (curr.getBoolean("fieldRequired"))
 			{
-				if (map.get(first).getClass().equals(textField.getClass()))
+				if (map.get(label).getClass().equals(textField.getClass()))
 					{
-					((RequiredTextField) map.get(first)).setRequired(true);
-					((RequiredTextField) map.get(first)).setBorder(border);
+					((RequiredTextField) map.get(label)).setRequired(true);
+					((RequiredTextField) map.get(label)).setBorder(border);
 					}
-				else if (map.get(first).getClass().equals(box.getClass()))
+				else if (map.get(label).getClass().equals(box.getClass()))
 					{
-					((RequiredComboBox) map.get(first)).setRequired(true);			
-					((RequiredComboBox) map.get(first)).setBorder(border);
+					((RequiredComboBox) map.get(label)).setRequired(true);			
+					((RequiredComboBox) map.get(label)).setBorder(border);
 					}		
 			}
-				
-		//some special conditions 
-		if (first.equals("Business Function"))
-			((RequiredComboBox) map.get("Business Function")).addActionListener(gui);
-		else if (first.equals("DalClass Record Series"))				
-			records=JArray2Array(curr.getJSONArray("valueList"));
+			
+			if (curr.has("actionRequired"))
+				if(curr.getBoolean("actionRequired"))
+					((RequiredComboBox) map.get(label)).addActionListener(gui);
+			if (curr.has("defaultValue"))
+				((RequiredTextField) map.get(label)).setText(curr.getString("defaultValue"));
+
+			//some special conditions 
+			if (label.equals("DalClass Record Series"))				
+				records=JArray2Array(curr.getJSONArray("valueList"));
 		}
 		return map;
 	}
