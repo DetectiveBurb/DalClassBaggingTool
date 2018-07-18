@@ -1,28 +1,28 @@
 {
 	"dateformat":"yyyy-MM-dd",
 	"ordered":[
-	    {"Transfer Number":{ 
+	    {"Transfer number":{ 
 	    	"type":"text",
             "fieldRequired":true
 	    }},
 	    
-	    {"Session Number": {
+	    {"Session number": {
 	    	"type":"text",	    
             "fieldRequired":true
             }},
 	    
-	    {"Transferring Employee": {
+	    {"Transferring employee": {
 	    	"type":"text",		
             "fieldRequired":false
             }},
 	        
-	    {"Receiving Department": {
+	    {"Receiving department": {
             "fieldRequired":true,
 	    	"type":"text",		
             "defaultValue": "Dalhousie University Archives"
 	    }},
 	    
-	    {"Business Function": {
+	    {"Business function": {
 			"type":"list",
         	"fieldRequired":false,
         	"actionRequired":true,		
@@ -43,7 +43,7 @@
             ]
             }},
 	    
-	    {"DalClass Record Series": {
+	    {"DalClass record series": {
             "fieldRequired":false,
 	    	"type":"list",		
             "valueList": [
@@ -239,17 +239,17 @@
              "fieldRequired":false
             }},
 	    
-	    {"Records Creation Start Date (YYYY-MM-DD)": {
+	    {"Records creation start date (YYYY-MM-DD)": {
 	    	"type":"date",
             "fieldRequired":false
             }},
 	    
-	    {"Records Creation End Date (YYYY-MM-DD)": {
+	    {"Records creation end date (YYYY-MM-DD)": {
 	    	"type":"date",		    
             "fieldRequired":false
             }},
 	    
-	    {"Digital Originality": {
+	    {"Digital originality": {
 	    	"type":"list",		
             "fieldRequired":false,
             "valueList": [
@@ -261,10 +261,11 @@
                 ]
             }},
 	    
-	    {"Location of Physical Records (if digitized and kept)": {
+	    {"Location of physical records (if digitized and kept)": {
 	    	"type":"text",		
             "fieldRequired":false
-            }},
+           			}
+        },
 	    
 	    {"Contains personal information?": {
 	    	"type":"list",		
@@ -274,11 +275,13 @@
                 "Yes",
                 "No"
                 ]
-            }},
+            	}
+        },
 	    
 	    {"Notes": {
 			"type":"text",
 	        "fieldRequired":false
-	    }}
+	    	}
+	    }
     ]
 }

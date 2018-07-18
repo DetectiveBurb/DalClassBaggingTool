@@ -2,82 +2,82 @@
 	"dateformat":"MM/dd/yyyy",
     "ordered": [
         {
-            "Accession/Transfer Number": {
+            "Accession/Transfer number": {
 		"type": "text",
                 "fieldRequired": false
             }
         },
         {
-            "Transferring Institution/Code": {
+            "Transferring institution/code": {
 		"type": "text",               
 		"fieldRequired": false
             }
         },
         {
-            "Creating Institution/Code": {
+            "Creating institution/code": {
 		"type": "text",                
 		"fieldRequired": false
             }
         },
         {
-            "Creating Institution Subdivision": {
+            "Creating institution subdivision": {
 		"type": "text",
    		"fieldRequired": false
             }
         },
         {
-            "Creating Institution Address": {
+            "Creating institution address": {
                 "fieldRequired": false,
 		"type": "text"		
             }
         },
         {
-            "transferring Employee": {
+            "Transferring employee": {
                 "fieldRequired": false,
 		"type": "text"				
             }
         },
         {
-            "Receiving Institution": {
+            "Receiving institution": {
                 "fieldRequired": false,
                 "defaultValue": "Enter your institution's name here",
 		"type": "text"
             }
         },
         {
-            "Receiving Institution Address": {
+            "Receiving institution address": {
                 "fieldRequired": false,
                 "defaultValue": "Enter your institution's address here",
 		"type": "text"
             }
         },
         {
-            "Receiving Institution Authority": {
+            "Receiving institution authority": {
                 "fieldRequired": false,
                 "defaultValue": "Enter your institution's authority and contact here",
 		"type": "text"
             }
         },
         {
-            "Receiving Employee": {
+            "Receiving employee": {
                 "fieldRequired": false,
 		"type": "text"
             }
         },
         {
-            "Records Series Number": {
+            "Records series number": {
                 "fieldRequired": false,
 		"type": "text"
             }
         },
         {
-            "Records Series Title": {
+            "Records series title": {
                 "fieldRequired": false,
 		"type": "text"
             }
         },
         {
-            "Records Retention Type": {
+            "Records retention type": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -89,31 +89,31 @@
             }
         },
         {
-            "Records Disposition Number/Code": {
+         	  "Records disposition number/code": {
                 "fieldRequired": false,
 		"type": "text"
             }
         },
         {
-            "Records Title/Description": {
+            "Records title/description": {
                 "fieldRequired": false,
 		"type": "text"
             }
         },
         {
-            "Records Creation Start Date": {
+            "Records creation start date": {
                 "fieldRequired": false,
 		"type": "date"
             }
         },
         {
-            "Records Creation End Date": {
+            "Records creation end date": {
                 "fieldRequired": false,
 		"type": "date"
             }
         },
         {
-            "Records Hashed Before Transfer?": {
+            "Records hashed before transfer?": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -124,7 +124,7 @@
             }
         },
         {
-            "Hash Signature Type": {
+            "Hash signature type": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -144,7 +144,7 @@
             }
         },
         {
-            "Records Medium/Carrier #1": {
+            "Records medium/carrier #1": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -174,13 +174,13 @@
             }
         },
         {
-            "How Many Media Received? #1 (e.g. 3)": {
+            "How many media received? #1 (e.g. 3)": {
                 "fieldRequired": false,
 		"type": "text"
             }
         },
         {
-            "Records Medium/Carrier #2": {
+            "Records medium/carrier #2": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -210,13 +210,13 @@
             }
         },
         {
-            "How Many Media Received? #2 (e.g. 3)": {
+            "How many media received? #2 (e.g. 3)": {
                 "fieldRequired": false,
 		"type": "text"
             }
         },
         {
-            "Records Medium/Carrier #3": {
+            "Records medium/carrier #3": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -246,13 +246,13 @@
             }
         },
         {
-            "How Many Media Received? #3 (e.g. 3)": {
+            "How many media received? #3 (e.g. 3)": {
                 "fieldRequired": false,
 		"type": "text"
             }
         },
         {
-            "Records Medium/Carrier #4": {
+            "Records medium/carrier #4": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -282,13 +282,13 @@
             }
         },
         {
-            "How Many Media Received? #4 (e.g. 3)": {
+            "How many media received? #4 (e.g. 3)": {
                 "fieldRequired": false,
 				"type": "text"		
             }
         },
         {
-            "Records Medium/Carrier #5": {
+            "Records medium/carrier #5": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -318,13 +318,13 @@
             }
         },
         {
-            "How Many Media Received? #5 (e.g. 3)": {
+            "How many media received? #5 (e.g. 3)": {
                 "fieldRequired": false,
 				"type": "text"
             }
         },
         {
-            "Transfer Media Kept?": {
+            "Transfer media kept?": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -336,31 +336,31 @@
             }
         },
         {
-            "Media Location (if media kept)": {
+            "Media location (if media kept)": {
                 "fieldRequired": false,
 				"type": "text"
             }
         },
         {
-            "Records Received Date ": {
+            "Records received date ": {
                 "fieldRequired": false,
 				"type": "date"
             }
         },
         {
-            "Mailing/Tracking Reference (if available. e.g. USPS tracking#)": {
+            "Mailing/Tracking reference (if available. e.g. USPS tracking#)": {
                 "fieldRequired": false,
 				"type": "text"
             }
         },
         {
-            "Mailing Method (if mailed. e.g. USPS)": {
+            "Mailing method (if mailed. e.g. USPS)": {
                 "fieldRequired": false,
 				"type": "text"
             }
         },
         {
-            "Digital Originality": {
+            "Digital originality": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -373,13 +373,13 @@
             }
         },
         {
-            "Physical Record Location (if digitized or Kept)": {
+            "Physical record location (if digitized or Kept)": {
                 "fieldRequired": false,
 				"type": "text"
             }
         },
         {
-            "Classification (for Access)": {
+            "Classification (for access)": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -394,7 +394,7 @@
             }
         },
         {
-            "Classification (Value for Priority Actions)": {
+            "Classification (value for priority actions)": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -407,7 +407,7 @@
             }
         },
         {
-            "Classification (Appraisal - Value for Agency)": {
+            "Classification (appraisal - value for agency)": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -422,7 +422,7 @@
             }
         },
         {
-            "Classification (Appraisal - Value for Residents/citizen)": {
+            "Classification (appraisal - value for residents/citizen)": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -434,7 +434,7 @@
             }
         },
         {
-            "Classification (Appraisal - Value for Nation/State/Locality)": {
+            "Classification (appraisal - value for nation/state/locality)": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -448,7 +448,7 @@
             }
         },
         {
-            "Classification (Appraisal - General Value)": {
+            "Classification (appraisal - general value)": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -460,7 +460,7 @@
             }
         },
         {
-            "Digital Content Structure": {
+            "Digital content structure": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -497,7 +497,7 @@
             }
         },
         {
-            "Digital Format Openness": {
+            "Digital format openness": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -511,7 +511,7 @@
             }
         },
         {
-            "OAIS Digital Curation Lifecycle": {
+            "OAIS digital curation lifecycle": {
                 "fieldRequired": false,
 				"type": "list",
                 "valueList": [
@@ -530,7 +530,7 @@
             }
         },
         {
-            "Accession Bag Creator (update if different)": {
+            "Accession bag creator (update if different)": {
                 "fieldRequired": false,
                 "defaultValue": "Enter your name here",
 				"type": "text"

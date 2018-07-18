@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.security.CodeSource;
@@ -69,11 +70,11 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		//so it's not hideous 
 		WebLookAndFeel.install();
 		//fc= new JFileChooser();
-		open = new JButton("Select Folder");
+		open = new JButton("Select folder");
 		save = new JButton("Save as");
 		start = new JButton("Bag it!");
-		back = new JButton("Select Another Profile");
-		zipped = new JCheckBox("zip the bag");
+		back = new JButton("Pick another profile");
+		zipped = new JCheckBox("Zip the bag");
 		algorithmSelect = new JComboBox<String>(algorithms); 
 		saveField = new JTextField(22);
 		openField = new JTextField(22); 
@@ -157,6 +158,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	    c.insets=new Insets(3,11,3,14);
 	    open.setPreferredSize(new Dimension(120,27));
 	    save.setPreferredSize(new Dimension(120,27));
+	    back.setPreferredSize(new Dimension(125,27));
 	    profileSelect.setPreferredSize(new Dimension(120,22));
 	    algorithmSelect.setPreferredSize(new Dimension(120,22));
 	    
@@ -222,13 +224,19 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	    refresh();
 	}
 
-	//fills the profileSelect combo box by reading what files are in the profiles dir
+	//fills the profile combo box by reading what files are in the profiles dir
 	private String[] getProfiles() throws IOException {
-		ArrayList<String> list = new ArrayList<String>();
-		list.add("No Profile");
+		ArrayList<String> files = new ArrayList<String>();
+		files.add("No profile");
 		
 		CodeSource src = Baggui.class.getProtectionDomain().getCodeSource();
-
+		/*managing resources depending on if it's running from a Jar or IDE.
+		 *if you are developing on something other than Eclipse you'll need to
+		 *change the value in the indexof call to something that works for you.
+		 *Or just do a better job with it than I did. 
+		 */
+		/*
+		
 		if (src.toString().indexOf("eclipse-workspace") < 0) {
 			if (src != null) {
 				URL jar = src.getLocation();
@@ -240,7 +248,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 					String name = e.getName();
 					if (name.startsWith("profiles/")) {
 						if (name.length()>9)
-							list.add(name.substring(9,name.length()-5));
+							files.add(name.substring(9,name.length()-5));
 					}
 				}	
 			}
@@ -248,33 +256,55 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		else if (src.toString().indexOf("eclipse-workspace") > 0){
 			File folder = new File("src/profiles");
 			 for (final File fileEntry : folder.listFiles())		        
-				 list.add(fileEntry.getName().substring(0, fileEntry.getName().length()-5));
+				 files.add(fileEntry.getName().substring(0, fileEntry.getName().length()-5));
 		}
-			
-	    String[] returnable = new String[list.size()];
-		returnable=list.toArray(returnable);
+		
+		*/
+		 /*try(     InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("profiles");
+			      BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+			   URL url = Baggui.class.getResource("profiles");
+			    File dir = null;
+			     try {
+					dir= new File(url.toURI());
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				 String resource;
+				for (File next : dir.listFiles())
+			      while( (resource = br.readLine()) != null ) 
+			        files.add(next.getName().toString().substring(0, next.getName().toString().length()-5));
+			      
+			*/    
+		 	
+		
+		//returning array for use in the ComboBox.
+	//    String[] returnable = new String[files.size()];
+	//	returnable=files.toArray(returnable);
+		String [] returnable= {"No profile","DalClass profile","Digital records accession generic profile"};
+		
 		return returnable;
 	}
 
+	//asks what profile the user would like before anything else happens.
 	public void askProfile() {
-		ImageIcon icon =new ImageIcon(this.getClass().getClassLoader().getResource("images/Dalfavicon.png"));
+		ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("images/Dalfavicon.png"));
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
-		String s = (String)JOptionPane.showInputDialog(
+		
+	    String s = (String)JOptionPane.showInputDialog(
 				null,
 		        "Please Select a Profile",
 		        null,
 		        JOptionPane.QUESTION_MESSAGE,
 		        icon,
 		        profiles,
-		        profiles[0]
-		        );
-
-		//If a string was returned, say so.
+		        profiles[0]);
+	    //setting what profile was picked.
 		if ((s != null) && (s.length() > 0)) {
 		   profileName=s;
 		   profilepicked=true;
 		   profile=new Profile(profileName, this);
-		   if(!profileName.equals("No Profile"))
+		   if(!profileName.equals("No profile"))
 			   this.customFields=profile.getMetaFields();
 		   return;
 		}
@@ -284,13 +314,12 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	//called once a profile is selected
 	private void drawMetaFields() {
 		
-		if (profileName.equals("No Profile"))
+		if (profileName.equals("No profile"))
 		{
-		mainPanel.remove(bottemPanel);
-		//bottemPanel.setVisible(false);
-		profilepicked=false;
-		resize();
-		refresh();
+			mainPanel.remove(bottemPanel);
+			profilepicked=false;
+			resize();
+			refresh();
 		}
 		else 
 		{
@@ -308,6 +337,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 			c.anchor = (c.gridx == 0) ? GridBagConstraints.WEST : GridBagConstraints.EAST;
 			c.fill = (c.gridx == 0) ? GridBagConstraints.BOTH : GridBagConstraints.HORIZONTAL;
 			//int colnum = (maximized) ? 4 : 2;
+			//colnum divided by two is how many columns will be drawn in the metafield panel 
 			int colnum = 2;
 			for (Entry<String, Component> entry : customFields.entrySet()) 
 			{
@@ -327,10 +357,10 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 				}		     
 			}
 			
+			//some misc window setup
 			bottemPanel=new JScrollPane(metaPanel);
 			bottemPanel.setVisible(true);
 			bottemPanel.getVerticalScrollBar().setUnitIncrement(16);
-			
 			c = new GridBagConstraints();
 			c.gridy=1;
 			c.gridx=0;
@@ -367,7 +397,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 			mainPanel.setPreferredSize(new Dimension(570,200));
 			frame.pack();
 			frame.setMinimumSize(new Dimension(571,231));
-		}	
+		}
 		else if (maximized && profilepicked) 
 		{
 			mainPanel.setSize(frame.getSize());
@@ -439,10 +469,10 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     		int fields = fieldsFilled();
     		//checking that all required fields are filled
     		if (fields==1)
-    			JOptionPane.showMessageDialog(null, "Please Select a profile");
+    			JOptionPane.showMessageDialog(null, "Please select a profile");
     		
     		else if (fields == 2)
-    			JOptionPane.showMessageDialog(null, "Please make sure all fields are filled \r\nRequired fields are outlined in red.");
+    			JOptionPane.showMessageDialog(null, "Please make sure all fields are filled. \r\nRequired fields are outlined in red.");
     		
     		else if (fields == 3){
         		//makes the bag with options enabled
@@ -478,17 +508,20 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     	else if (e.getSource().equals(back))
     	{
     		int confirmed = 5;
-    		//ImageIcon icon =new ImageIcon(this.getClass().getClassLoader().getResource("images/Dalfavicon.png"));
+    		
+    		//displays a option making sure the user want to change profile as it will make them
+    		//lose any info they have entered into the metafields
+    		
     		confirmed = JOptionPane.showConfirmDialog(
     				null,
-    				"Changing profiles will delete all entered meta data, do you wish to continue?",
-    				"Confirm Profile Change",
+    	/*Text in box*/		"Changing profiles will delete all entered metadata. Do you wish to continue?",
+    	/*Title of box*/	"Confirm profile change",
     				JOptionPane.YES_NO_OPTION
-    		        );
+    		        ); 
+    		//then displays the initial pop-up to select profiles.k
     		if (confirmed == JOptionPane.YES_OPTION) 
     		{
     			askProfile();
-    			
     			drawMetaFields();
     		}
     	}
