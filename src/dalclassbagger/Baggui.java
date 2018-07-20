@@ -69,7 +69,6 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	public Baggui(Baglady baglady){
 		//so it's not hideous 
 		WebLookAndFeel.install();
-		//fc= new JFileChooser();
 		open = new JButton("Select folder");
 		save = new JButton("Save as");
 		start = new JButton("Bag it!");
@@ -389,7 +388,10 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     	}
     }
     
-	//fills the profile combo box by reading what files are in the profiles dir
+	//fills the profile combo box
+    //if you are adding you're own JSON profile you'll need to add it to this array
+    //make sure it's the exact file name minus ".json"
+    //so if your json profile is exAmp1e.json, add "exAmp1e" to this array. 
 	private String[] getProfiles() throws IOException {		
 		String [] returnable= {"No profile","DalClass profile","Digital records accession generic profile"};
 		return returnable;
