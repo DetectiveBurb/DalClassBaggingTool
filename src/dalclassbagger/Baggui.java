@@ -119,6 +119,31 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 		maximized=false;	
 	}	
 	
+	//asks what profile the user would like before anything else happens.
+	public void askProfile() {
+		ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("images/Dalfavicon.png"));
+	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
+		
+	    String s = (String)JOptionPane.showInputDialog(
+				null,
+		        "Please Select a Profile",
+		        null,
+		        JOptionPane.QUESTION_MESSAGE,
+		        icon,
+		        profiles,
+		        profiles[0]);
+	    //setting what profile was picked.
+		if ((s != null) && (s.length() > 0)) {
+		   profileName=s;
+		   profilepicked=true;
+		   profile=new Profile(profileName, this);
+		   if(!profileName.equals("No profile"))
+			   this.customFields=profile.getMetaFields();
+		   return;
+		}
+		return;
+	}
+	
 	//creates and styles gui
 	public void createAndShowGUI() {
 		Color slategrey = new Color(112,115,114);
@@ -223,188 +248,7 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
 	    resize();
 	    refresh();
 	}
-
-	//fills the profile combo box by reading what files are in the profiles dir
-	private String[] getProfiles() throws IOException {
-		ArrayList<String> files = new ArrayList<String>();
-		files.add("No profile");
-		
-		CodeSource src = Baggui.class.getProtectionDomain().getCodeSource();
-		/*managing resources depending on if it's running from a Jar or IDE.
-		 *if you are developing on something other than Eclipse you'll need to
-		 *change the value in the indexof call to something that works for you.
-		 *Or just do a better job with it than I did. 
-		 */
-		/*
-		
-		if (src.toString().indexOf("eclipse-workspace") < 0) {
-			if (src != null) {
-				URL jar = src.getLocation();
-				ZipInputStream zip = new ZipInputStream(jar.openStream());
-				while(true) {
-					ZipEntry e = zip.getNextEntry();
-					if (e == null)
-						break;
-					String name = e.getName();
-					if (name.startsWith("profiles/")) {
-						if (name.length()>9)
-							files.add(name.substring(9,name.length()-5));
-					}
-				}	
-			}
-		}
-		else if (src.toString().indexOf("eclipse-workspace") > 0){
-			File folder = new File("src/profiles");
-			 for (final File fileEntry : folder.listFiles())		        
-				 files.add(fileEntry.getName().substring(0, fileEntry.getName().length()-5));
-		}
-		
-		*/
-		 /*try(     InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("profiles");
-			      BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
-			   URL url = Baggui.class.getResource("profiles");
-			    File dir = null;
-			     try {
-					dir= new File(url.toURI());
-				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				 String resource;
-				for (File next : dir.listFiles())
-			      while( (resource = br.readLine()) != null ) 
-			        files.add(next.getName().toString().substring(0, next.getName().toString().length()-5));
-			      
-			*/    
-		 	
-		
-		//returning array for use in the ComboBox.
-	//    String[] returnable = new String[files.size()];
-	//	returnable=files.toArray(returnable);
-		String [] returnable= {"No profile","DalClass profile","Digital records accession generic profile"};
-		
-		return returnable;
-	}
-
-	//asks what profile the user would like before anything else happens.
-	public void askProfile() {
-		ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("images/Dalfavicon.png"));
-	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
-		
-	    String s = (String)JOptionPane.showInputDialog(
-				null,
-		        "Please Select a Profile",
-		        null,
-		        JOptionPane.QUESTION_MESSAGE,
-		        icon,
-		        profiles,
-		        profiles[0]);
-	    //setting what profile was picked.
-		if ((s != null) && (s.length() > 0)) {
-		   profileName=s;
-		   profilepicked=true;
-		   profile=new Profile(profileName, this);
-		   if(!profileName.equals("No profile"))
-			   this.customFields=profile.getMetaFields();
-		   return;
-		}
-		return;
-	}
 	
-	//called once a profile is selected
-	private void drawMetaFields() {
-		
-		if (profileName.equals("No profile"))
-		{
-			mainPanel.remove(bottemPanel);
-			profilepicked=false;
-			resize();
-			refresh();
-		}
-		else 
-		{
-			profilepicked=true;
-			//creating the panel
-			metaPanel = new JPanel(new GridBagLayout());	
-			mainPanel.remove(bottemPanel);
-			//configuring spacing
-			GridBagConstraints c = new GridBagConstraints();
-			c.ipadx=2;
-			c.ipady=4;
-			c.insets=new Insets(0,4,4,4);
-			c.gridx=0;
-			c.gridy=0;
-			c.anchor = (c.gridx == 0) ? GridBagConstraints.WEST : GridBagConstraints.EAST;
-			c.fill = (c.gridx == 0) ? GridBagConstraints.BOTH : GridBagConstraints.HORIZONTAL;
-			//int colnum = (maximized) ? 4 : 2;
-			//colnum divided by two is how many columns will be drawn in the metafield panel 
-			int colnum = 2;
-			for (Entry<String, Component> entry : customFields.entrySet()) 
-			{
-				String key = entry.getKey();
-				Component field =  entry.getValue();
-				JLabel label = new JLabel(key+":");
-				metaPanel.add(label,c);
-				c.gridx++;
-				
-				metaPanel.add(field,c);
-				c.gridx++;
-				
-				if (c.gridx%colnum == 0) 
-				{
-					c.gridy++;
-					c.gridx=0;
-				}		     
-			}
-			
-			//some misc window setup
-			bottemPanel=new JScrollPane(metaPanel);
-			bottemPanel.setVisible(true);
-			bottemPanel.getVerticalScrollBar().setUnitIncrement(16);
-			c = new GridBagConstraints();
-			c.gridy=1;
-			c.gridx=0;
-	    	resize();
-			mainPanel.add(bottemPanel,c);
-			frame.getContentPane().add(mainPanel);
-			refresh();
-		}
-
-	}
-
-    
-	private void resize() {
-		//deals with sizing the panel
-		if (!maximized && !resized && profilepicked) 
-		{
-			resized=true;
-			bottemPanel.setPreferredSize(new Dimension(821,435));
-			mainPanel.setPreferredSize(new Dimension(821, 635));
-			frame.pack();
-			frame.setMinimumSize(frame.getSize());
-
-		}
-		else if (!maximized && profilepicked && resized) 
-		{
-			bottemPanel.setPreferredSize(new Dimension(821,435));
-			mainPanel.setPreferredSize(new Dimension(821,635));
-			frame.pack();
-			frame.setMinimumSize(frame.getSize());
-		}
-		else if (!maximized && !profilepicked)
-		{
-			resized=false;
-			mainPanel.setPreferredSize(new Dimension(570,200));
-			frame.pack();
-			frame.setMinimumSize(new Dimension(571,231));
-		}
-		else if (maximized && profilepicked) 
-		{
-			mainPanel.setSize(frame.getSize());
-			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth()-50,mainPanel.getHeight()-250));
-		}		
-	}
-
 	//event listeners 
     @SuppressWarnings("unchecked")
 	public void actionPerformed(ActionEvent e) {
@@ -544,7 +388,107 @@ public class Baggui implements ActionListener,WindowListener, WindowFocusListene
     			}
     	}
     }
-    //function to determine if all fields are filled.
+    
+	//fills the profile combo box by reading what files are in the profiles dir
+	private String[] getProfiles() throws IOException {		
+		String [] returnable= {"No profile","DalClass profile","Digital records accession generic profile"};
+		return returnable;
+	}
+	
+	//called once a profile is selected
+	private void drawMetaFields() {
+		
+		if (profileName.equals("No profile"))
+		{
+			mainPanel.remove(bottemPanel);
+			profilepicked=false;
+			resize();
+			refresh();
+		}
+		else 
+		{
+			profilepicked=true;
+			//creating the panel
+			metaPanel = new JPanel(new GridBagLayout());	
+			mainPanel.remove(bottemPanel);
+			//configuring spacing
+			GridBagConstraints c = new GridBagConstraints();
+			c.ipadx=2;
+			c.ipady=4;
+			c.insets=new Insets(0,4,4,4);
+			c.gridx=0;
+			c.gridy=0;
+			c.anchor = (c.gridx == 0) ? GridBagConstraints.WEST : GridBagConstraints.EAST;
+			c.fill = (c.gridx == 0) ? GridBagConstraints.BOTH : GridBagConstraints.HORIZONTAL;
+			//int colnum = (maximized) ? 4 : 2;
+			//colnum divided by two is how many columns will be drawn in the metafield panel 
+			int colnum = 2;
+			for (Entry<String, Component> entry : customFields.entrySet()) 
+			{
+				String key = entry.getKey();
+				Component field =  entry.getValue();
+				JLabel label = new JLabel(key+":");
+				metaPanel.add(label,c);
+				c.gridx++;
+				
+				metaPanel.add(field,c);
+				c.gridx++;
+				
+				if (c.gridx%colnum == 0) 
+				{
+					c.gridy++;
+					c.gridx=0;
+				}		     
+			}
+			
+			//some misc window setup
+			bottemPanel=new JScrollPane(metaPanel);
+			bottemPanel.setVisible(true);
+			bottemPanel.getVerticalScrollBar().setUnitIncrement(16);
+			c = new GridBagConstraints();
+			c.gridy=1;
+			c.gridx=0;
+	    	resize();
+			mainPanel.add(bottemPanel,c);
+			frame.getContentPane().add(mainPanel);
+			refresh();
+		}
+
+	}
+  
+	private void resize() {
+		//deals with sizing the panel
+		if (!maximized && !resized && profilepicked) 
+		{
+			resized=true;
+			bottemPanel.setPreferredSize(new Dimension(821,435));
+			mainPanel.setPreferredSize(new Dimension(821, 635));
+			frame.pack();
+			frame.setMinimumSize(frame.getSize());
+
+		}
+		else if (!maximized && profilepicked && resized) 
+		{
+			bottemPanel.setPreferredSize(new Dimension(821,435));
+			mainPanel.setPreferredSize(new Dimension(821,635));
+			frame.pack();
+			frame.setMinimumSize(frame.getSize());
+		}
+		else if (!maximized && !profilepicked)
+		{
+			resized=false;
+			mainPanel.setPreferredSize(new Dimension(570,200));
+			frame.pack();
+			frame.setMinimumSize(new Dimension(571,231));
+		}
+		else if (maximized && profilepicked) 
+		{
+			mainPanel.setSize(frame.getSize());
+			bottemPanel.setPreferredSize(new Dimension(mainPanel.getWidth()-50,mainPanel.getHeight()-250));
+		}		
+	}
+
+	//function to determine if all fields are filled.
 	private int fieldsFilled() {
 		if(saveField.getText().equals("") || openField.getText().equals(""))
 			return 2;
