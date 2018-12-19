@@ -43,7 +43,7 @@ public class Profile{
 		String file = "profiles/"+selected+".json";
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
 		JSONTokener tokener = new JSONTokener(in);
-		JSONObject json = new JSONObject(tokener);	
+		JSONObject json = new JSONObject(tokener);
 		JSONArray jsons = (JSONArray) json.get("ordered");
 		Border border=BorderFactory.createLineBorder(Color.red);		
 		RequiredTextField textField = new RequiredTextField(); 

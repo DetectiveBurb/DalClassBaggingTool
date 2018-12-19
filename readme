@@ -1,0 +1,54 @@
+This software is used to Create bags conforming to the standard created to conform to the baggit specification.
+This software uses the bagit-java library from the library of congress (https://github.com/LibraryOfCongress/bagit-java) and the "good date picker" (https://github.com/LGoodDatePicker/LGoodDatePicker), also makes use of json files and the json library
+
+FILES
+
+Baggui:
+		Draws the UI the user sees
+		Harvests info  
+		Communicates to the other files what needs to be done with and when input is provided
+		
+Baglady:
+		Creates the bag with the bagit library.
+		Handles moving files about, as the bagit library only supports making a bag in place.
+		Zips the bag as well if option was selected.
+		
+Dalclass:
+		Main class
+		
+Profile:
+		Takes the profile json files and uses them to create the field in the gui
+		
+RequiredComboBox & Required Text Fields
+		extends jcombobox and jtextfield, just carries a boolean named required to make drawing and validating fields easier.
+				
+
+PROFILES
+
+profiles can be created with json files.
+They are kept in the profile dir of this project. 
+The content of the profile dir is scanned to populate the drop down for picking a profile
+
+The format for a profile is as follows.
+
+//start of file
+{
+	"dateformat":"yyyy-MM-dd",
+	"ordered":[
+	    {"Transfer number":{ 
+	    	"type":"text",	//supports text, date and list types
+            "fieldRequired":true
+             "defaultValue": "1111"//optional field, if not included, the program assumes
+             "valueList": [ //necessary for if the list type is selected, populates the drop down. 
+            	"",
+            	"option 1",
+            	"option 2"
+            ] 
+	    }},
+	    {//next field}
+	]
+}
+//end of file
+
+
+Created by Miles Redgate at Dalhousie Academic Technology Services for the dalhousie archives.
